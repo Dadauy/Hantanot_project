@@ -47,7 +47,7 @@ def get_daykb(programma):
     months = mon[int(month) - 1]
     days = set()
     for ivent in programma:
-        set.add(ivent.date_start.day)
+        days.add(ivent.date_start.day)
     dayl = sorted([i for i in days])
 
     for day in dayl:
