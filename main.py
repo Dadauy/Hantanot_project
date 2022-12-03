@@ -22,6 +22,7 @@ def start_hello(message):
     elif res.law == 1:  # если админe
         admin_interface.admin(bot, message)
 
+
 bot.enable_save_next_step_handlers(delay=1)
 bot.load_next_step_handlers()
 bot.infinity_polling()

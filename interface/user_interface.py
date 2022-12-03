@@ -3,7 +3,6 @@ import telebot
 from messages import default_messages_user, keyboards_user
 from database import db_session
 from database.party import Party
-from database.speakers import Speaker
 
 
 
