@@ -12,11 +12,26 @@ def admin(bot: telebot.TeleBot, message):
         bot.send_message(message.chat.id, default_messages_admin.FUNC_MESSAGE,
                          reply_markup=keyboards_admin.data_add())
 
-        @bot.callback_query_handler(func=lambda call: call.data == 'admin')  # мероприятие
+        @bot.callback_query_handler(func=lambda call: call.data == 'program')  # мероприятие
         def add_party_callback(call):
             """Добавляем мероприятие"""
 
-            bot.send_message(message.chat.id, "Отправь excel файл(одна колонка с )")
+            bot.send_message(message.chat.id,
+                             "Отправь excel файл по шаблону:\n""(<назание><о мероприятии><начало><конец><место><спикеры><модераторы><темы>)")
+
+            @bot.message_handler(content_types=['document'])
+            def handle_file(message):
+                from tools_admin.add_party import add_party
+                add_party(bot, message)
+                bot.send_message(message.chat.id, "Вся программа из excel добавлена!")
+                admin(bot, message)
+
+        @bot.callback_query_handler(func=lambda call: call.data == 'program_reg')  # мероприятие
+        def add_party_callback(call):
+            """Добавляем мероприятия с регистрацией"""
+
+            bot.send_message(message.chat.id,
+                             "Отправь excel файл по шаблону:\n""(<начало><содержание><максимальное количество человек>)")
 
             @bot.message_handler(content_types=['document'])
             def handle_file(message):
@@ -99,7 +114,7 @@ def admin(bot: telebot.TeleBot, message):
     def delete_callback(call):
         """Удаляем"""
         bot.send_message(message.chat.id, default_messages_admin.FUNC_MESSAGE,
-                         reply_markup=keyboards_admin.data())
+                         reply_markup=keyboards_admin.data_delete())
 
         @bot.callback_query_handler(func=lambda call: call.data == 'admin')  # admin
         def delete_admin_callback(call):
