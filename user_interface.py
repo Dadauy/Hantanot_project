@@ -14,8 +14,8 @@ bot = telebot.TeleBot(BOT_TOKEN)
 # message handlers
 @bot.message_handler(commands=['start']) # Вывод приветственной клавиатуры
 def start_hello(message):
-    bot.send_message(message.from_user.id, default_messages.HELLO_MESSAGE)
-    bot.send_message(message.from_user.id, "Хотите узнать обо мне побольше?", reply_markup=keyboards.get_welcomekb())
+    bot.send_message(message.chat.id, default_messages.HELLO_MESSAGE)
+    bot.send_message(message.chat.id, "Хотите узнать обо мне побольше?", reply_markup=keyboards.get_welcomekb())
 
 
 # callback handlers
