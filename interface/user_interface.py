@@ -60,5 +60,17 @@ def user(bot: telebot.TeleBot, message, db_sess):
                                reply_markup=keyboards_user.get_mainkb())
         bot.register_next_step_handler(msg, choice)
 
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("day_num"))
+    def select_day(call):
+        day_num = int(call.data.replace("day_num", ""))
+        bot.send_message(call.message.chat.id, "Расписание на день:")
+        ivents = db_sess.query(Programma).all()
+
+        for ivent in ivents:
+            if ivent.date_start.day == day_num:
+                des = default_messages_user.get_ivent_description(ivent)
+                bot.send_message(call.message.chat.id, des, reply_markup=keyboards_user.get_kb_for_programma(ivent.id))
+        bot.send_message(call.message.chat.id, "Вот все мероприятия на этот день!",
+                         reply_markup=keyboards_user.get_go_to_main_menukb())
 
 

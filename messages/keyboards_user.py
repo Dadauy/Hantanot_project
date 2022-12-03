@@ -52,8 +52,24 @@ def get_daykb(programma):
 
     for day in dayl:
         text = str(day) + " " + months
-        data = str(day)
+        data = "day_num" + str(day)
         btn = types.InlineKeyboardButton(text=text, callback_data=data)
         kb.add(btn)
+    kb.add(types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu'))
+    return kb
+
+def get_kb_for_programma(ivent_id):
+    kb = types.InlineKeyboardMarkup()
+    data1 = "moder_num:" + str(ivent_id)
+    data2 = "speaker_num:" + str(ivent_id)
+    data3 = "obs_num:" + str(ivent_id)
+
+    btn1 = types.InlineKeyboardButton(text="Список модераторов", callback_data=data1)
+    btn2 = types.InlineKeyboardButton(text="Список спикеров", callback_data=data2)
+    btn3 = types.InlineKeyboardButton(text="Список тем, которые будут обсуждаться", callback_data=data3)
+    kb.row(btn1)
+    kb.row(btn2)
+    kb.row(btn3)
 
     return kb
+
