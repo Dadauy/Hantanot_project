@@ -48,7 +48,7 @@ def user(bot: telebot.TeleBot, message, db_sess):
             return
         if id == default_messages_user.emojicode['2']:
             bot.send_message(message.chat.id,
-                             'Программа будет проходить в течении несокльких дней\nНа какой день вы бы хотели узнать программу',
+                             'Программа будет проходить в течении несокльких дней\nНа какой день вы бы хотели узнать программу:',
                              reply_markup=keyboards_user.get_daykb(db_sess.query(Programma).all()))
 
             return
@@ -121,18 +121,18 @@ def user(bot: telebot.TeleBot, message, db_sess):
     @bot.callback_query_handler(func=lambda call: call.data.startswith("current_speaker_id"))
     def select_moder(call):
         id_speaker = int(call.data.replace("current_speaker_id", ""))
-        speaker = db_sess.query(Speaker).filter(Speaker.id == id_speaker)
+        speaker = db_sess.query(Speaker).filter(Speaker.id == id_speaker).first()
 
         des = "Имя: " + speaker.name + "\n"
         des += "Немного о спикере: " + speaker.comment
         bot.send_message(call.message.chat.id, des, reply_markup=keyboards_user.get_go_to_main_menukb())
 
-        # Информация о конкретном модере
-        @bot.callback_query_handler(func=lambda call: call.data.startswith("current_moder_id"))
-        def select_moder(call):
-            id_moder = int(call.data.replace("current_moder_id", ""))
-            moder = db_sess.query(Moder).filter(Moder.id == id_moder)
+    # Информация о конкретном модере
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("current_moder_id"))
+    def select_moder(call):
+        id_moder = int(call.data.replace("current_moder_id", ""))
+        moder = db_sess.query(Moder).filter(Moder.id == id_moder).first()
 
-            des = "Имя: " + moder.name + "\n"
-            des += "Немного о спикере: " + moder.comment
-            bot.send_message(call.message.chat.id, des, reply_markup=keyboards_user.get_go_to_main_menukb())
+        des = "Имя: " + moder.name + "\n"
+        des += "Немного о спикере: " + moder.comment
+        bot.send_message(call.message.chat.id, des, reply_markup=keyboards_user.get_go_to_main_menukb())

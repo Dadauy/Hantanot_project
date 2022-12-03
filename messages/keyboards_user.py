@@ -60,11 +60,11 @@ def get_daykb(programma):
 
 def get_kb_for_programma(ivent_id):
     kb = types.InlineKeyboardMarkup()
-    data1 = "moder_num:" + str(ivent_id)
-    data2 = "speaker_num:" + str(ivent_id)
-    data3 = "obs_num:" + str(ivent_id)
+    data1 = "moder_num" + str(ivent_id)
+    data2 = "speaker_num" + str(ivent_id)
+    data3 = "obs_num" + str(ivent_id)
 
-    btn1 = types.InlineKeyboardButton(text="Список модераторов", callback_data=data1)
+    btn1 = types.InlineKeyboardButton(text="Список организаторов", callback_data=data1)
     btn2 = types.InlineKeyboardButton(text="Список спикеров", callback_data=data2)
     btn3 = types.InlineKeyboardButton(text="Список тем, которые будут обсуждаться", callback_data=data3)
     kb.row(btn1)
