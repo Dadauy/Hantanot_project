@@ -11,5 +11,5 @@ class Speaker(SqlAlchemyBase):
     name = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # имя спикера
     surname = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # фамилия спикера
     patronymic = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # отчество спикера
-    id_work = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)  # id работа спикера
+    work = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)  # работа спикера
     comment = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # дополнительная информация про спикера
