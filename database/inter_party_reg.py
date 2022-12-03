@@ -9,5 +9,3 @@ class InterPartyReg(SqlAlchemyBase):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)  # id party
     chatid = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # chatid
-
-
