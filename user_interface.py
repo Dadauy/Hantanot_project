@@ -4,6 +4,10 @@ from config import BOT_TOKEN
 import telebot
 
 
+# work with database
+#
+
+
 # init
 bot = telebot.TeleBot(BOT_TOKEN)
 
@@ -28,8 +32,10 @@ def callback_about(call):
 @bot.callback_query_handler(func=lambda call: call.data == 'main_menu')#обработка кнопки перезода к основному меню
 def start_main_menu(call): #Вывод основного меню с клавиатурой
     bot.send_message(call.message.chat.id, 'Добро Пожаловать в основное меню!')
+    menu = ""
     for punct in default_messages.MAIN_MENU:
-        bot.send_message(call.message.chat.id, punct)
+        menu += punct + "\n"
+    bot.send_message(call.message.chat.id, menu)
     msg = bot.send_message(call.message.chat.id, 'Выберите интересующий вас пункт:', reply_markup=keyboards.get_mainkb())
     bot.register_next_step_handler(msg, choice) # Переход на следующий шаг взаимодействия с menu
 
