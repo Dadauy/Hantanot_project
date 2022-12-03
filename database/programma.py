@@ -13,6 +13,3 @@ class Programma(SqlAlchemyBase):
     date_start = sqlalchemy.Column(sqlalchemy.DateTime, nullable=True)  # начало
     date_finish = sqlalchemy.Column(sqlalchemy.DateTime, nullable=True)  # конец
     place = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # место
-    speakers = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # спикеры
-    moders = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # можераторы
-    temaobs = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # темы для обсуждения

@@ -3,7 +3,7 @@ import sqlalchemy
 from .db_session import SqlAlchemyBase
 
 
-class User(SqlAlchemyBase):
+class UserReg(SqlAlchemyBase):
     """таблица зареганных пользователей"""
     __tablename__ = 'users_reg'
 
