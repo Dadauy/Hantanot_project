@@ -9,17 +9,33 @@ emojicode = {
     '4':surrogates.decode('4\ufe0f\u20e3'),
     '5':surrogates.decode('5\ufe0f\u20e3'),
     '6':surrogates.decode('6\ufe0f\u20e3'),
-    'bot':surrogates.decode('\ud83e\udd16')
+    'bot':surrogates.decode('\ud83e\udd16'),
+    'smile':surrogates.decode('\ud83d\ude0a'),
+    'confused':surrogates.decode('\ud83d\ude23'),
+    'searching':surrogates.decode('\ud83e\uddd0'),
+    'fire':surrogates.decode('\ud83d\udd25'),
+    'computer':surrogates.decode('\ud83d\udcbb'),
+    'tada':surrogates.decode('\ud83c\udf89'),
+    'kalendar':surrogates.decode('\ud83d\udcc6'),
+    'pen':surrogates.decode('\u270f\ufe0f'),
+    'ok':surrogates.decode('\u2705'),
+    'world':surrogates.decode('\ud83c\udf10'),
+    'program':surrogates.decode('\ud83d\udcd4'),
+    'mic':surrogates.decode('\ud83c\udfa4'),
+    'quest':surrogates.decode('\u2753'),
+
+
+
 }
 
 
 HELLO_MESSAGE = "Привет!{}\nМеня зовут ITForumUgra_bot{}\nЯ телеграмбот созданный специально для ИТ-форума".format(emojicode['hello'], emojicode['bot'])
 
 MAIN_MENU = [
-    '1· О мероприятии',
-    '2· Программа мероприятия',
-    '3· Спикеры',
-    '4· Подписаться на новости',
-    '5· Задать вопрос',
-    '6· Регистрация',
+    '1· {}О мероприятии{}'.format(emojicode['fire'], emojicode['fire']),
+    '2· {}Программа мероприятия{}'.format(emojicode['program'], emojicode['program']),
+    '3· {}Спикеры{}'.format(emojicode['mic'], emojicode['mic']),
+    '4· {}Подписаться на оповещение о начале события{}'.format(emojicode['kalendar'], emojicode['kalendar']),
+    '5· {}Задать вопрос{}'.format(emojicode['quest'], emojicode['quest']),
+    '6· {}Регистрация{}'.format(emojicode['pen'], emojicode['pen']),
 ]
