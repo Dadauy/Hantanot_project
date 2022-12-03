@@ -1,5 +1,10 @@
 from telebot import types
 from messages import default_messages_user
+from database import db_session
+from database.programma import Programma
+
+mon = ['января', 'февраля', 'марта', "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября",
+       "декабря"]
 
 
 # Клавиатура для приветствия
@@ -30,23 +35,25 @@ def get_mainkb():
         btn = types.KeyboardButton(default_messages_user.emojicode[str(i)])
         btn_list.append(btn)
     kb.row(btn_list[0], btn_list[1], btn_list[2])
-    kb.row(btn_list[3], btn_list[4], btn_list[5])
-
+    kb.row(btn_list[3], btn_list[4])
 
     return kb
 
 
-# Клавиатура для инфы про спикеров
-def get_speaker_infokb():
-   kb = types.InlineKeyboardMarkup()
+# Клавиатура для дней
+def get_daykb(programma):
+    kb = types.InlineKeyboardMarkup()
+    month = programma[0].date_start.month
+    months = mon[int(month) - 1]
+    days = set()
+    for ivent in programma:
+        set.add(ivent.date_start.day)
+    dayl = sorted([i for i in days])
 
-   btn1 = types.InlineKeyboardButton(text="Узнать больше", callback_data='info_speaker')
-   btn2 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
+    for day in dayl:
+        text = str(day) + " " + months
+        data = str(day)
+        btn = types.InlineKeyboardButton(text=text, callback_data=data)
+        kb.add(btn)
 
-   kb.add(btn1).add(btn2)
-
-   return kb
-
-
-
-
+    return kb

@@ -3,8 +3,7 @@ import telebot
 from messages import default_messages_user, keyboards_user
 from database import db_session
 from database.party import Party
-
-
+from database.programma import Programma
 
 
 def user(bot: telebot.TeleBot, message, db_sess):
@@ -16,7 +15,7 @@ def user(bot: telebot.TeleBot, message, db_sess):
     @bot.callback_query_handler(func=lambda call: call.data == 'about')  # Обработка кнопки описания
     def callback_about(call):
         bot.send_message(call.message.chat.id,
-                         'Я бот созданный для ITфорума, я могу вывести всю информацию о нём и зарегистрировать вас туда',
+                         'Я бот созданный спеицально для IT-форума, я могу вывести всю информацию о нём и зарегистрировать вас туда',
                          reply_markup=keyboards_user.get_go_to_main_menukb())
 
     @bot.callback_query_handler(
@@ -45,26 +44,13 @@ def user(bot: telebot.TeleBot, message, db_sess):
                              reply_markup=keyboards_user.get_go_to_main_menukb())  # вывели инфу и предложили вернуться в галвное меню
             return
         if id == default_messages_user.emojicode['2']:
-            ivent = db_sess.query(Party).get(1)
-            bot.send_message(message.chat.id, "Тематические разделы проекта:\n{}".format(ivent.programma),
-                             reply_markup=keyboards_user.get_go_to_main_menukb())  # вывели инфу и предложили вернуться в галвное меню
+            bot.send_message(message.chat.id,
+                             'Программа будет проходить в течении несокльких дней\nНа какой день вы бы хотели узнать программу',
+                             reply_markup=keyboards_user.get_daykb(db_sess.query(Programma).all()))
+
             return
         if id == default_messages_user.emojicode['3']:
-            bot.send_message(message.chat.id, 'Краткая информация о спикерах')
-
-            speakers = db_sess.query(Speaker).all()
-            for speaker in speakers:
-                # Создаём клавиатуру для инфы про спикеров
-                keyb = telebot.types.InlineKeyboardMarkup()
-                data = "speaker_number:" + str(speaker.id)
-                btn = telebot.types.InlineKeyboardButton(text="Узнать больше",
-                                                         callback_data=data)
-                keyb.add(btn)
-                description = default_messages_user.small_speaker_description(speaker)
-                bot.send_message(message.chat.id,
-                                 description,
-                                 reply_markup=keyb)
-            return
+            pass
 
         # если пользователь что-то написал, а не нажал на клавиатуру
         msg = bot.send_message(message.chat.id,
@@ -74,9 +60,5 @@ def user(bot: telebot.TeleBot, message, db_sess):
                                reply_markup=keyboards_user.get_mainkb())
         bot.register_next_step_handler(msg, choice)
 
-    @bot.callback_query_handler(func=lambda call: call.data.startswith("speaker_number:"))
-    def get_speaker_info(call):
-        speaker = db_sess.query(Speaker).get(int(call.data.replace('speaker_number:', '')))
 
-        bot.send_message(call.message.chat.id, default_messages_user.speaker_description(speaker),
-                         reply_markup=keyboards_user.get_go_to_main_menukb())
+
