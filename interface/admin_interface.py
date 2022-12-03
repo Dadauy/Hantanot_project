@@ -1,116 +1,127 @@
 import telebot
 from messages import default_messages_admin, keyboards_admin
-from database.best_questions import BestQuestion
-from database.all_users import AllUsers
-from database import db_session
 
 
 def admin(bot: telebot.TeleBot, message):
     bot.send_message(message.chat.id, default_messages_admin.HELLO_MESSAGE,
                      reply_markup=keyboards_admin.func_data())
 
-    """Добавялем"""
-
     @bot.callback_query_handler(func=lambda call: call.data == 'add')  # добавить
-    def callback_about(call):
-        bot.send_message(message.chat.id, default_messages_admin.HELLO_MESSAGE,
-                         reply_markup=keyboards_admin.data())
+    def add_callback(call):
+        """Добавяляем"""
+        bot.send_message(message.chat.id, default_messages_admin.FUNC_MESSAGE,
+                         reply_markup=keyboards_admin.data_add())
 
-        """Добавляем админа"""
+        @bot.callback_query_handler(func=lambda call: call.data == 'admin')  # мероприятие
+        def add_party_callback(call):
+            """Добавляем мероприятие"""
 
-        @bot.callback_query_handler(func=lambda call: call.data == 'admin')  # admin
-        def callback_about(call):
-            bot.send_message(message.chat.id, "Введите данные админа по шаблону\n<chat.id>")
+            bot.send_message(message.chat.id, "Отправь excel файл(одна колонка с )")
 
-            @bot.message_handler()
-            def menu(message):
-                db_session.global_init("db/db_forum.db")
-                db_sess = db_session.create_session()
-                org = AllUsers(
-                    chat_id=message.text,
-                    law=1
-                )
-                db_sess.add(org)
-                db_sess.commit()
-                bot.send_message(message.chat.id, "Админ добавлен!")
+            @bot.message_handler(content_types=['document'])
+            def handle_file(message):
+                from tools_admin.add_party import add_party
+                add_party(bot, message)
+                bot.send_message(message.chat.id, "Вся программа из excel добавлена!")
                 admin(bot, message)
+
+        @bot.callback_query_handler(func=lambda call: call.data == 'admin')  # админ
+        def add_admin_callback(call):
+            """Добавляем админа"""
+            bot.send_message(message.chat.id, default_messages_admin.WORK_WAY,
+                             reply_markup=keyboards_admin.ways())
+
+            @bot.callback_query_handler(func=lambda call: call.data == 'excel')  # excel
+            def add_admin_excel_callback(call):
+                bot.send_message(message.chat.id, "Отправь excel файл(одна колонка с <chat_id>)")
+
+                @bot.message_handler(content_types=['document'])
+                def handle_file(message):
+                    from tools_admin.add_admin_excel import add_admin_excel
+                    add_admin_excel(bot, message)
+                    bot.send_message(message.chat.id, "Все админы из excel добавлены!")
+                    admin(bot, message)
+
+            @bot.callback_query_handler(func=lambda call: call.data == 'work')  # вручную
+            def add_admin_work_callback(call):
+                bot.send_message(message.chat.id, "Введите данные админа по шаблону\n<chat.id>")
+
+                @bot.message_handler()
+                def handle_message(message):
+                    from tools_admin.add_admin_work import add_admin_work
+                    add_admin_work(message)
+                    bot.send_message(message.chat.id, "Админ добавлен!")
+                    admin(bot, message)
 
         """Добавляем организатора"""
 
         @bot.callback_query_handler(func=lambda call: call.data == 'org')  # org
-        def callback_about(call):
-            bot.send_message(message.chat.id, "Введите данные организатора по шаблону\n<chat.id>")
+        def add_org_callback(call):
+            bot.send_message(message.chat.id, default_messages_admin.WORK_WAY,
+                             reply_markup=keyboards_admin.ways())
 
-            @bot.message_handler()
-            def menu(message):
-                db_session.global_init("db/db_forum.db")
-                db_sess = db_session.create_session()
-                org = AllUsers(
-                    chat_id=message.text,
-                    law=2
-                )
-                db_sess.delete(org)
-                db_sess.commit()
-                bot.send_message(message.chat.id, "Организатор добавлен!")
-                admin(bot, message)
+            @bot.callback_query_handler(func=lambda call: call.data == 'excel')  # excel
+            def add_org_excel_callback(call):
+                bot.send_message(message.chat.id, "Отправь excel файл(одна колонка с <chat_id>)")
+
+                @bot.message_handler(content_types=['document'])
+                def handle_file(message):
+                    from tools_admin.add_org_excel import add_org_excel
+                    add_org_excel(bot, message)
+                    bot.send_message(message.chat.id, "Все организаторы из excel добавлены!")
+                    admin(bot, message)
+
+            @bot.callback_query_handler(func=lambda call: call.data == 'excel')  # вручную
+            def add_org_work_callback(call):
+                bot.send_message(message.chat.id, "Введите данные организатора по шаблону\n<chat.id>")
+
+                @bot.message_handler()
+                def handle_message(message):
+                    from tools_admin.add_org_work import add_org_work
+                    add_org_work(message)
+                    bot.send_message(message.chat.id, "Организатор добавлен!")
+                    admin(bot, message)
 
         """Добавляем вопрос"""
 
         @bot.callback_query_handler(func=lambda call: call.data == 'quest')  # quest
-        def callback_about(call):
+        def add_quest_callback(call):
             bot.send_message(message.chat.id, "Введите вопрос по шаблону\n<Вопрос>#<Ответ>")
 
             @bot.message_handler()
-            def menu(message):
-                db_session.global_init("db/db_forum.db")
-                db_sess = db_session.create_session()
-                q_ans_r = message.text.split("#")
-                best_quest = BestQuestion(
-                    quest=q_ans_r[0],
-                    response=q_ans_r[1]
-                )
-                db_sess.add(best_quest)
-                db_sess.commit()
+            def handle_message(message):
+                from tools_admin.add_quest import add_quest
+                add_quest(message)
                 bot.send_message(message.chat.id, "Вопрос добавлен!")
                 admin(bot, message)
 
-    """Удаляем"""
-
     @bot.callback_query_handler(func=lambda call: call.data == 'delete')  # удалить
-    def callback_about(call):
+    def delete_callback(call):
+        """Удаляем"""
+        bot.send_message(message.chat.id, default_messages_admin.FUNC_MESSAGE,
+                         reply_markup=keyboards_admin.data())
+
         @bot.callback_query_handler(func=lambda call: call.data == 'admin')  # admin
-        def callback_about(call):
+        def delete_admin_callback(call):
+            """Удаляем Админа"""
             bot.send_message(message.chat.id, "Введите данные админа по шаблону\n<chat.id>")
 
             @bot.message_handler()
             def menu(message):
-                db_session.global_init("db/db_forum.db")
-                db_sess = db_session.create_session()
-                org = AllUsers(
-                    chat_id=message.text,
-                    law=1
-                )
-                db_sess.delete(org)
-                db_sess.commit()
+                from tools_admin.delete_admin import delete_admin
+                delete_admin(message)
                 bot.send_message(message.chat.id, "Админ удален!")
                 admin(bot, message)
 
-        """Удаляем организатора"""
-
         @bot.callback_query_handler(func=lambda call: call.data == 'org')  # org
         def callback_about(call):
+            """Удаляем организатора"""
             bot.send_message(message.chat.id, "Введите данные организатора по шаблону\n<chat.id>")
 
             @bot.message_handler()
             def menu(message):
-                db_session.global_init("db/db_forum.db")
-                db_sess = db_session.create_session()
-                org = AllUsers(
-                    chat_id=message.text,
-                    law=2
-                )
-                db_sess.delete(org)
-                db_sess.commit()
+                from tools_admin.delete_org import delete_org
+                delete_org(message)
                 bot.send_message(message.chat.id, "Организатор удален!")
                 admin(bot, message)
 
@@ -122,18 +133,7 @@ def admin(bot: telebot.TeleBot, message):
 
             @bot.message_handler()
             def menu(message):
-                db_session.global_init("db/db_forum.db")
-                db_sess = db_session.create_session()
-                q_ans_r = message.text.split("#")
-                best_quest = BestQuestion(
-                    quest=q_ans_r[0],
-                    response=q_ans_r[1]
-                )
-                db_sess.add(best_quest)
-                db_sess.commit()
+                from tools_admin.delete_quest import delete_quest
+                delete_quest(message)
                 bot.send_message(message.chat.id, "Вопрос добавлен!")
                 admin(bot, message)
-
-    @bot.callback_query_handler(func=lambda call: call.data == 'interview')  # создать опрос
-    def callback_about(call):
-        bot.send_message(message.chat.id, "hello")

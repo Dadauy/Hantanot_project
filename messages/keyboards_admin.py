@@ -1,7 +1,7 @@
 from telebot import types
 
 
-def data():
+def data_add():
     kb = types.InlineKeyboardMarkup()
     kb.add(types.InlineKeyboardButton(text='Администратора', callback_data='admin'))
     kb.add(types.InlineKeyboardButton(text='Организатора', callback_data='org'))
@@ -19,8 +19,8 @@ def func_data():
     return kb
 
 
-def await_menu():
+def ways():
     kb = types.InlineKeyboardMarkup()
-    btn = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
-    kb.add(btn)
+    kb.add(types.InlineKeyboardButton(text='Вручную', callback_data='work'))
+    kb.add(types.InlineKeyboardButton(text='Из excel файла', callback_data='excel'))
     return kb
