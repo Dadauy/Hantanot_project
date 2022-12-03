@@ -22,7 +22,7 @@ class UserReg(SqlAlchemyBase):
     city = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # город
     email = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # email
     number = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # номер телефона
-    language = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # номер телефона
+    language = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # язык
     agreement = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)  # согласие на обработку ПД
 
 

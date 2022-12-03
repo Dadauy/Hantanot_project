@@ -73,3 +73,11 @@ def get_kb_for_programma(ivent_id):
 
     return kb
 
+def get_acceptkb():
+    kb = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    btn1 = types.KeyboardButton(text="{}".format(default_messages_user.emojicode['ok']))
+    btn2 = types.KeyboardButton(text="{}".format(default_messages_user.emojicode['no']))
+
+    kb.row(btn1, btn2)
+
+    return kb

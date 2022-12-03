@@ -1,12 +1,14 @@
 import telebot
 
 from messages import default_messages_user, keyboards_user
+from interface.user_utils import register
 from database import db_session
 from database.party import Party
 from database.programma import Programma
 from database.organizators import Moder
 from database.speakers import Speaker
 from database.temas import Tema
+from database.users_reg import UserReg
 
 
 def user(bot: telebot.TeleBot, message, db_sess):
@@ -53,7 +55,17 @@ def user(bot: telebot.TeleBot, message, db_sess):
 
             return
         if id == default_messages_user.emojicode['3']:
-            pass
+            return
+        if id == default_messages_user.emojicode['4']:
+            return
+        if id == default_messages_user.emojicode['5']:
+            msg = bot.send_message(message.chat.id,
+                                   "Начало регистрации{}\nВведите своё имя:".format(
+                                       default_messages_user.emojicode['pen']))
+            user_reg = UserReg(id_tg=message.chat.id)
+
+            bot.register_next_step_handler(msg, step_name)
+            return
 
         # если пользователь что-то написал, а не нажал на клавиатуру
         msg = bot.send_message(message.chat.id,
@@ -117,6 +129,7 @@ def user(bot: telebot.TeleBot, message, db_sess):
         for tema in temas:
             msg += tema.comment + "\n"
         bot.send_message(call.message.chat.id, msg, reply_markup=keyboards_user.get_go_to_main_menukb())
+
     # Информация о конкретном спикере
     @bot.callback_query_handler(func=lambda call: call.data.startswith("current_speaker_id"))
     def select_moder(call):
@@ -136,3 +149,7 @@ def user(bot: telebot.TeleBot, message, db_sess):
         des = "Имя: " + moder.name + "\n"
         des += "Немного о спикере: " + moder.comment
         bot.send_message(call.message.chat.id, des, reply_markup=keyboards_user.get_go_to_main_menukb())
+
+    # Шаги регистрации
+    def step_name(message):
+        bot.send_message(message.chat.id, "text")

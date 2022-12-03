@@ -23,6 +23,7 @@ emojicode = {
     'program':surrogates.decode('\ud83d\udcd4'),
     'mic':surrogates.decode('\ud83c\udfa4'),
     'quest':surrogates.decode('\u2753'),
+    'no':surrogates.decode('\u274c'),
 
 
 
