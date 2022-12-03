@@ -1,4 +1,4 @@
-from interface import user_interface, admin_interface
+from interface import user_interface, admin_interface, moder_interface
 from database import db_session
 from settings.config import BOT_TOKEN
 import telebot
@@ -25,7 +25,7 @@ def start_hello(message):
     elif res.law == 1:  # если админ
         admin_interface.admin(bot, message)
     elif res.law == 2:
-        pass
+        moder_interface.moder(bot, message)
     elif res.law == 0:
         user_interface.user(bot, message, db_sess)
 
