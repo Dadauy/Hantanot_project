@@ -16,7 +16,7 @@ def get_welcomekb():
 def get_go_to_main_menukb():
     kb = types.InlineKeyboardMarkup()
 
-    btn = types.InlineKeyboardButton(text='Основное меню', callback_data='main_menu')
+    btn = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
 
     kb.add(btn)
     return kb
@@ -30,3 +30,19 @@ def get_mainkb():
         btn = types.KeyboardButton(default_messages_user.emojicode[str(i)])
         kb.add(btn)
     return kb
+
+
+# Клавиатура для инфы про спикеров
+def get_speaker_infokb():
+   kb = types.InlineKeyboardMarkup()
+
+   btn1 = types.InlineKeyboardButton(text="Узнать больше", callback_data='info_speaker')
+   btn2 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
+
+   kb.add(btn1).add(btn2)
+
+   return kb
+
+
+
+
