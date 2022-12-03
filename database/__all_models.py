@@ -7,3 +7,5 @@ from . import users_reg
 from . import speakers
 from . import organizators
 from . import temas
+from . import inter_party
+from . import inter_party_reg
