@@ -39,3 +39,19 @@ MAIN_MENU = [
     '5· {}Задать вопрос{}'.format(emojicode['quest'], emojicode['quest']),
     '6· {}Регистрация{}'.format(emojicode['pen'], emojicode['pen']),
 ]
+
+def get_decription(party):
+    des = "Будет проходить мероприятие под названием {}\n".format(party.name)
+    des += "Немного о мероприятии:\n{}\n".format(party.comment)
+    des += "В нём будут принимать участие:\n{}".format(party.mobs)
+
+    return des
+
+def small_speaker_description(speaker):
+    des = speaker.name + " " + speaker.surname + " " + speaker.patronymic + "\n"
+    des += "Занимает должность: " + speaker.work
+    return des
+
+def speaker_description(speaker):
+    des = small_speaker_description(speaker) + "\nНемного о спикере:\n" + speaker.comment
+    return des

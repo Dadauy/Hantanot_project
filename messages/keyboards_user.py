@@ -25,10 +25,14 @@ def get_go_to_main_menukb():
 # Клавиатура для основного меню
 def get_mainkb():
     kb = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-
+    btn_list = []
     for i in range(1, 7):
         btn = types.KeyboardButton(default_messages_user.emojicode[str(i)])
-        kb.add(btn)
+        btn_list.append(btn)
+    kb.row(btn_list[0], btn_list[1], btn_list[2])
+    kb.row(btn_list[3], btn_list[4], btn_list[5])
+
+
     return kb
 
 

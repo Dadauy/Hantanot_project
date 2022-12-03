@@ -18,9 +18,10 @@ def start_hello(message):
     db_sess = db_session.create_session()
     res = db_sess.query(ManLaw).filter(ManLaw.id_tg == message.chat.id).first()  # данные о юзере
     if res.law == 0:  # если обычный пользователь
-        user_interface.user(bot, message)
+        user_interface.user(bot, message, db_sess)
     elif res.law == 1:  # если админe
         admin_interface.admin(bot, message)
 
-
+bot.enable_save_next_step_handlers(delay=1)
+bot.load_next_step_handlers()
 bot.infinity_polling()
