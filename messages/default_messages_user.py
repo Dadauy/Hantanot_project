@@ -23,6 +23,7 @@ emojicode = {
     'program':surrogates.decode('\ud83d\udcd4'),
     'mic':surrogates.decode('\ud83c\udfa4'),
     'quest':surrogates.decode('\u2753'),
+    'no':surrogates.decode('\u274c'),
 
 
 
@@ -34,24 +35,21 @@ HELLO_MESSAGE = "Привет!{}\nМеня зовут ITForumUgra_bot{}\nЯ те
 MAIN_MENU = [
     '1· {}О мероприятии{}'.format(emojicode['fire'], emojicode['fire']),
     '2· {}Программа мероприятия{}'.format(emojicode['program'], emojicode['program']),
-    '3· {}Спикеры{}'.format(emojicode['mic'], emojicode['mic']),
-    '4· {}Подписаться на оповещение о начале события{}'.format(emojicode['kalendar'], emojicode['kalendar']),
-    '5· {}Задать вопрос{}'.format(emojicode['quest'], emojicode['quest']),
-    '6· {}Регистрация{}'.format(emojicode['pen'], emojicode['pen']),
+    '3· {}Подписаться на оповещение о начале IT-форума{}'.format(emojicode['kalendar'], emojicode['kalendar']),
+    '4· {}Задать вопрос{}'.format(emojicode['quest'], emojicode['quest']),
+    '5· {}Регистрация{}'.format(emojicode['pen'], emojicode['pen']),
 ]
-
+# old version == '3· {}Спикеры{}'.format(emojicode['mic'], emojicode['mic']),
 def get_decription(party):
     des = "Будет проходить мероприятие под названием {}\n".format(party.name)
     des += "Немного о мероприятии:\n{}\n".format(party.comment)
-    des += "В нём будут принимать участие:\n{}".format(party.mobs)
 
     return des
 
-def small_speaker_description(speaker):
-    des = speaker.name + " " + speaker.surname + " " + speaker.patronymic + "\n"
-    des += "Занимает должность: " + speaker.work
-    return des
-
-def speaker_description(speaker):
-    des = small_speaker_description(speaker) + "\nНемного о спикере:\n" + speaker.comment
+def get_ivent_description(ivent):
+    des = ivent.name
+    des += "\n Мероприятие начинается в {}:{}".format(ivent.date_start.hour, ivent.date_start.minute)
+    des += "\n Мероприятие заканчивается в {}:{}".format(ivent.date_finish.hour, ivent.date_finish.minute)
+    des += "\nБудет проходить: " + ivent.place
+    des += "\nНемного о мероприятии:\n" + ivent.comment
     return des

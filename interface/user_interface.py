@@ -1,10 +1,14 @@
 import telebot
 
 from messages import default_messages_user, keyboards_user
+from interface.user_utils import register
 from database import db_session
 from database.party import Party
-
-
+from database.programma import Programma
+from database.organizators import Moder
+from database.speakers import Speaker
+from database.temas import Tema
+from database.users_reg import UserReg
 
 
 def user(bot: telebot.TeleBot, message, db_sess):
@@ -16,7 +20,7 @@ def user(bot: telebot.TeleBot, message, db_sess):
     @bot.callback_query_handler(func=lambda call: call.data == 'about')  # Обработка кнопки описания
     def callback_about(call):
         bot.send_message(call.message.chat.id,
-                         'Я бот созданный для ITфорума, я могу вывести всю информацию о нём и зарегистрировать вас туда',
+                         'Я бот созданный спеицально для IT-форума, я могу вывести всю информацию о нём и зарегистрировать вас туда',
                          reply_markup=keyboards_user.get_go_to_main_menukb())
 
     @bot.callback_query_handler(
@@ -45,25 +49,22 @@ def user(bot: telebot.TeleBot, message, db_sess):
                              reply_markup=keyboards_user.get_go_to_main_menukb())  # вывели инфу и предложили вернуться в галвное меню
             return
         if id == default_messages_user.emojicode['2']:
-            ivent = db_sess.query(Party).get(1)
-            bot.send_message(message.chat.id, "Тематические разделы проекта:\n{}".format(ivent.programma),
-                             reply_markup=keyboards_user.get_go_to_main_menukb())  # вывели инфу и предложили вернуться в галвное меню
+            bot.send_message(message.chat.id,
+                             'Программа будет проходить в течении несокльких дней\nНа какой день вы бы хотели узнать программу:',
+                             reply_markup=keyboards_user.get_daykb(db_sess.query(Programma).all()))
+
             return
         if id == default_messages_user.emojicode['3']:
-            bot.send_message(message.chat.id, 'Краткая информация о спикерах')
+            return
+        if id == default_messages_user.emojicode['4']:
+            return
+        if id == default_messages_user.emojicode['5']:
+            msg = bot.send_message(message.chat.id,
+                                   "Начало регистрации{}\nВведите своё имя:".format(
+                                       default_messages_user.emojicode['pen']))
+            user_reg = UserReg(id_tg=message.chat.id)
 
-            speakers = db_sess.query(Speaker).all()
-            for speaker in speakers:
-                # Создаём клавиатуру для инфы про спикеров
-                keyb = telebot.types.InlineKeyboardMarkup()
-                data = "speaker_number:" + str(speaker.id)
-                btn = telebot.types.InlineKeyboardButton(text="Узнать больше",
-                                                         callback_data=data)
-                keyb.add(btn)
-                description = default_messages_user.small_speaker_description(speaker)
-                bot.send_message(message.chat.id,
-                                 description,
-                                 reply_markup=keyb)
+            bot.register_next_step_handler(msg, step_name)
             return
 
         # если пользователь что-то написал, а не нажал на клавиатуру
@@ -74,9 +75,81 @@ def user(bot: telebot.TeleBot, message, db_sess):
                                reply_markup=keyboards_user.get_mainkb())
         bot.register_next_step_handler(msg, choice)
 
-    @bot.callback_query_handler(func=lambda call: call.data.startswith("speaker_number:"))
-    def get_speaker_info(call):
-        speaker = db_sess.query(Speaker).get(int(call.data.replace('speaker_number:', '')))
+    # Даёт расписание на день
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("day_num"))
+    def select_day(call):
+        day_num = int(call.data.replace("day_num", ""))
+        bot.send_message(call.message.chat.id, "Расписание на день:")
+        ivents = db_sess.query(Programma).all()
 
-        bot.send_message(call.message.chat.id, default_messages_user.speaker_description(speaker),
+        for ivent in ivents:
+            if ivent.date_start.day == day_num:
+                des = default_messages_user.get_ivent_description(ivent)
+                bot.send_message(call.message.chat.id, des, reply_markup=keyboards_user.get_kb_for_programma(ivent.id))
+        bot.send_message(call.message.chat.id, "Вот все мероприятия на этот день!",
                          reply_markup=keyboards_user.get_go_to_main_menukb())
+
+    # Даёт список Модераторов
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("moder_num"))
+    def select_moder(call):
+        id_ivent = int(call.data.replace("moder_num", ""))
+        moderators = db_sess.query(Moder).filter(Moder.id_party == id_ivent).all()
+        bot.send_message(call.message.chat.id, "Список орагнизаторов:")
+        for moder in moderators:
+            des = moder.name
+            keyb = telebot.types.InlineKeyboardMarkup()
+            data = 'current_moder_id' + str(moder.id)
+            keyb.add(telebot.types.InlineKeyboardButton(text="Узнать больше", callback_data=data))
+
+            bot.send_message(call.message.chat.id, des, reply_markup=keyb)
+        bot.send_message(message.chat.id, "Это все организаторы!", reply_markup=keyboards_user.get_go_to_main_menukb())
+
+    # Даёт список Спикеров
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("speaker_num"))
+    def select_moder(call):
+        id_ivent = int(call.data.replace("speaker_num", ""))
+        speakers = db_sess.query(Speaker).filter(Speaker.id_party == id_ivent).all()
+        bot.send_message(call.message.chat.id, "Список спикеров:")
+        for speaker in speakers:
+            des = speaker.name
+            keyb = telebot.types.InlineKeyboardMarkup()
+            data = 'current_speaker_id' + str(speaker.id)
+            keyb.add(telebot.types.InlineKeyboardButton(text="Узнать больше", callback_data=data))
+
+            bot.send_message(call.message.chat.id, des, reply_markup=keyb)
+        bot.send_message(message.chat.id, "Это все спикеры!", reply_markup=keyboards_user.get_go_to_main_menukb())
+
+    # Даёт список тем
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("obs_num"))
+    def select_moder(call):
+        id_ivent = int(call.data.replace("obs_num", ""))
+        temas = db_sess.query(Tema).filter(Tema.id_party == id_ivent).all()
+        bot.send_message(call.message.chat.id, "Список тем:")
+        msg = ""
+        for tema in temas:
+            msg += tema.comment + "\n"
+        bot.send_message(call.message.chat.id, msg, reply_markup=keyboards_user.get_go_to_main_menukb())
+
+    # Информация о конкретном спикере
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("current_speaker_id"))
+    def select_moder(call):
+        id_speaker = int(call.data.replace("current_speaker_id", ""))
+        speaker = db_sess.query(Speaker).filter(Speaker.id == id_speaker).first()
+
+        des = "Имя: " + speaker.name + "\n"
+        des += "Немного о спикере: " + speaker.comment
+        bot.send_message(call.message.chat.id, des, reply_markup=keyboards_user.get_go_to_main_menukb())
+
+    # Информация о конкретном модере
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("current_moder_id"))
+    def select_moder(call):
+        id_moder = int(call.data.replace("current_moder_id", ""))
+        moder = db_sess.query(Moder).filter(Moder.id == id_moder).first()
+
+        des = "Имя: " + moder.name + "\n"
+        des += "Немного о спикере: " + moder.comment
+        bot.send_message(call.message.chat.id, des, reply_markup=keyboards_user.get_go_to_main_menukb())
+
+    # Шаги регистрации
+    def step_name(message):
+        bot.send_message(message.chat.id, "text")

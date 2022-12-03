@@ -26,6 +26,8 @@ def start_hello(message):
         admin_interface.admin(bot, message)
     elif res.law == 2:
         pass
+    elif res.law == 0:
+        user_interface.user(bot, message, db_sess)
 
 
 bot.enable_save_next_step_handlers(delay=1)
