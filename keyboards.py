@@ -1,7 +1,7 @@
 from telebot import types
 import default_messages
 
-
+# Клавиатура для приветствия
 def get_welcomekb():
     kb = types.InlineKeyboardMarkup()
 
@@ -10,6 +10,7 @@ def get_welcomekb():
     kb.add(btn)
     return kb
 
+# клавиатура для перехода к основному меню
 def get_go_to_main_menukb():
     kb = types.InlineKeyboardMarkup()
 
@@ -18,6 +19,7 @@ def get_go_to_main_menukb():
     kb.add(btn)
     return kb
 
+#Клавиатура для основного меню
 def get_mainkb():
     kb = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
 

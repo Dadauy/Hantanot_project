@@ -1,5 +1,6 @@
 import surrogates
 
+#emoji
 emojicode = {
     'hello': surrogates.decode('\ud83d\udc4b'),
     '1':surrogates.decode('1\ufe0f\u20e3'),
