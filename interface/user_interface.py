@@ -10,6 +10,9 @@ from database.speakers import Speaker
 from database.temas import Tema
 from database.users_reg import UserReg
 
+global user_reg
+user_reg = UserReg()
+
 
 def user(bot: telebot.TeleBot, message, db_sess):
     # Стартовое приветствие
@@ -62,8 +65,8 @@ def user(bot: telebot.TeleBot, message, db_sess):
             msg = bot.send_message(message.chat.id,
                                    "Начало регистрации{}\nВведите своё имя:".format(
                                        default_messages_user.emojicode['pen']))
-            user_reg = UserReg(id_tg=message.chat.id)
 
+            user_reg.id_tg = message.chat.id
             bot.register_next_step_handler(msg, step_name)
             return
 
@@ -152,4 +155,100 @@ def user(bot: telebot.TeleBot, message, db_sess):
 
     # Шаги регистрации
     def step_name(message):
-        bot.send_message(message.chat.id, "text")
+        user_reg.name = message.text
+        msg = bot.send_message(message.chat.id, "Введите свою фамилию:")
+        bot.register_next_step_handler(msg, step_surname)
+
+    def step_surname(message):
+        user_reg.surname = message.text
+        msg = bot.send_message(message.chat.id, "Введите своё отчество:")
+        bot.register_next_step_handler(msg, step_patronymic)
+
+    def step_patronymic(message):
+        user_reg.patronymic = message.text
+        msg = bot.send_message(message.chat.id, "Введите своё имя на английском:")
+        bot.register_next_step_handler(msg, step_name_eng)
+
+    def step_name_eng(message):
+        user_reg.name_eng = message.text
+        msg = bot.send_message(message.chat.id, "Введите свою фамилию на английском:")
+        bot.register_next_step_handler(msg, step_surname_eng)
+
+    def step_surname_eng(message):
+        user_reg.surname_eng = message.text
+        msg = bot.send_message(message.chat.id, "Введите место работы:")
+        bot.register_next_step_handler(msg, step_work)
+
+    def step_work(message):
+        user_reg.organization = message.text
+        msg = bot.send_message(message.chat.id, "Введите формат: очно/заочно",
+                               reply_markup=keyboards_user.get_formatkb())
+        bot.register_next_step_handler(msg, step_format)
+
+    def step_format(message):
+        if message.text == 'очно':
+            user_reg.format_challenge = True
+        else:
+            user_reg.format_challenge = False
+        msg = bot.send_message(message.chat.id, "Вы из СМИ: да/нет",
+                               reply_markup=keyboards_user.get_smi())
+        bot.register_next_step_handler(msg, step_smi)
+
+    def step_smi(message):
+        if message.text == 'да':
+            user_reg.in_smi = True
+        else:
+            user_reg.in_smi = False
+        msg = bot.send_message(message.chat.id, "Введите название страны, где вы живёте:")
+        bot.register_next_step_handler(msg, step_country)
+
+    def step_country(message):
+        user_reg.country = message.text
+        msg = bot.send_message(message.chat.id, "Введите название города, где вы живёте:")
+        bot.register_next_step_handler(msg, step_city)
+
+    def step_city(message):
+        user_reg.city = message.text
+        msg = bot.send_message(message.chat.id, "Введите email:")
+        bot.register_next_step_handler(msg, step_email)
+
+    def step_email(message):
+        user_reg.email = message.text
+        msg = bot.send_message(message.chat.id, "Введите номер телефона:")
+        bot.register_next_step_handler(msg, step_number)
+
+    def step_number(message):
+        user_reg.number = message.text
+        msg = bot.send_message(message.chat.id, "Введите язык на котором разговариваете:")
+        bot.register_next_step_handler(msg, step_language)
+
+    def step_language(message):
+        user_reg.language = message.text
+        msg = bot.send_message(message.chat.id, "Вы согласны на обработку ваших данных: да/нет",
+                               reply_markup=keyboards_user.get_smi())
+        bot.register_next_step_handler(msg, step_agreement)
+
+    def step_agreement(message):
+        if message.text == 'да':
+            user_reg.agreement = True
+        else:
+            user_reg.agreement = False
+        msg = bot.send_message(message.chat.id, "Кажется это всё...", reply_markup=keyboards_user.get_next())
+        bot.register_next_step_handler(msg, step_accept)
+
+    def step_accept(message):
+
+        data = "Регистрация завершена!\nПроверьте данные, которые ввели:\n" + default_messages_user.get_data(
+            user_reg) + "\nДанные корректны?"
+        msg = bot.send_message(message.chat.id, data, reply_markup=keyboards_user.get_acceptkb())
+        bot.register_next_step_handler(msg, step_finish)
+
+    def step_finish(message):
+        if message.text == default_messages_user.emojicode['ok']:
+            db_sess.add(user_reg)
+            db_sess.commit()
+            bot.send_message(message.chat.id, "Вы успешно заргистрированы!",
+                             reply_markup=keyboards_user.get_go_to_main_menukb())
+        else:
+            bot.send_message(message.chat.id, "Ничего страшного!\nМожете попробовать снова!",
+                             reply_markup=keyboards_user.get_go_to_main_menukb())

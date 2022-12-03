@@ -81,3 +81,25 @@ def get_acceptkb():
     kb.row(btn1, btn2)
 
     return kb
+def get_formatkb():
+    kb = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    btn1 = types.KeyboardButton(text="очно")
+    btn2 = types.KeyboardButton(text="заочно")
+    kb.add(btn1, btn2)
+
+    return kb
+
+def get_smi():
+    kb = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    btn1 = types.KeyboardButton(text="да")
+    btn2 = types.KeyboardButton(text="нет")
+    kb.add(btn1, btn2)
+
+    return kb
+
+def get_next():
+    kb = types.ReplyKeyboardMarkup(one_time_keyboard=True)
+    btn1 = types.KeyboardButton(text="Далее")
+    kb.add(btn1)
+
+    return kb
