@@ -8,6 +8,7 @@ class User(SqlAlchemyBase):
     __tablename__ = 'users_reg'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)  # id пользователя
+    id_tg = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # chatid юзера
     name = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # имя
     surname = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # фамилия
     patronymic = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # отчество
