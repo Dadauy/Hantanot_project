@@ -5,7 +5,7 @@ from .db_session import SqlAlchemyBase
 
 class User(SqlAlchemyBase):
     """таблица зареганных пользователей"""
-    __tablename__ = 'best_questions'
+    __tablename__ = 'users_reg'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)  # id пользователя
     name = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # имя
@@ -13,7 +13,7 @@ class User(SqlAlchemyBase):
     patronymic = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # отчество
     name_eng = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # имя на англиском
     surname_eng = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # фамилия на англиском
-    id_work = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)  # id работы
+    id_work = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)  # id работы
     organization = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # имя организации
     format_challenge = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)  # очно или заочно
     in_smi = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True)  # в СМИ? да/нет
