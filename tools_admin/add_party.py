@@ -19,7 +19,7 @@ def add_party(bot, message):
     db_sess = db_session.create_session()
     for i in range(1, sheet.max_row + 1):
         prog = Programma()
-        for j in range(0, 10):
+        for j in range(0, 9):
             if j == 0:
                 prog.name = sheet[i][j].value
             elif j == 1:
