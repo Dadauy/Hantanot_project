@@ -24,7 +24,6 @@ def admin(bot: telebot.TeleBot, message):
                 from tools_admin.add_party import add_party
                 add_party(bot, message)
                 bot.send_message(message.chat.id, "Вся программа из excel добавлена!")
-                admin(bot, message)
 
         @bot.callback_query_handler(func=lambda call: call.data == 'program_reg')  # мероприятие
         def add_party_callback(call):
@@ -35,10 +34,9 @@ def admin(bot: telebot.TeleBot, message):
 
             @bot.message_handler(content_types=['document'])
             def handle_file(message):
-                from tools_admin.add_party import add_party
-                add_party(bot, message)
+                from tools_admin.add_party_reg import add_party_reg
+                add_party_reg(bot, message)
                 bot.send_message(message.chat.id, "Вся программа из excel добавлена!")
-                admin(bot, message)
 
         @bot.callback_query_handler(func=lambda call: call.data == 'admin')  # админ
         def add_admin_callback(call):
@@ -55,7 +53,6 @@ def admin(bot: telebot.TeleBot, message):
                     from tools_admin.add_admin_excel import add_admin_excel
                     add_admin_excel(bot, message)
                     bot.send_message(message.chat.id, "Все админы из excel добавлены!")
-                    admin(bot, message)
 
             @bot.callback_query_handler(func=lambda call: call.data == 'work')  # вручную
             def add_admin_work_callback(call):
@@ -66,7 +63,6 @@ def admin(bot: telebot.TeleBot, message):
                     from tools_admin.add_admin_work import add_admin_work
                     add_admin_work(message)
                     bot.send_message(message.chat.id, "Админ добавлен!")
-                    admin(bot, message)
 
         """Добавляем организатора"""
 
@@ -84,9 +80,8 @@ def admin(bot: telebot.TeleBot, message):
                     from tools_admin.add_org_excel import add_org_excel
                     add_org_excel(bot, message)
                     bot.send_message(message.chat.id, "Все организаторы из excel добавлены!")
-                    admin(bot, message)
 
-            @bot.callback_query_handler(func=lambda call: call.data == 'excel')  # вручную
+            @bot.callback_query_handler(func=lambda call: call.data == 'work')  # вручную
             def add_org_work_callback(call):
                 bot.send_message(message.chat.id, "Введите данные организатора по шаблону\n<chat.id>")
 
@@ -95,7 +90,6 @@ def admin(bot: telebot.TeleBot, message):
                     from tools_admin.add_org_work import add_org_work
                     add_org_work(message)
                     bot.send_message(message.chat.id, "Организатор добавлен!")
-                    admin(bot, message)
 
         """Добавляем вопрос"""
 
@@ -108,7 +102,6 @@ def admin(bot: telebot.TeleBot, message):
                 from tools_admin.add_quest import add_quest
                 add_quest(message)
                 bot.send_message(message.chat.id, "Вопрос добавлен!")
-                admin(bot, message)
 
     @bot.callback_query_handler(func=lambda call: call.data == 'delete')  # удалить
     def delete_callback(call):
@@ -126,7 +119,6 @@ def admin(bot: telebot.TeleBot, message):
                 from tools_admin.delete_admin import delete_admin
                 delete_admin(message)
                 bot.send_message(message.chat.id, "Админ удален!")
-                admin(bot, message)
 
         @bot.callback_query_handler(func=lambda call: call.data == 'org')  # org
         def callback_about(call):
@@ -138,7 +130,6 @@ def admin(bot: telebot.TeleBot, message):
                 from tools_admin.delete_org import delete_org
                 delete_org(message)
                 bot.send_message(message.chat.id, "Организатор удален!")
-                admin(bot, message)
 
         """Удаляем вопрос"""
 
@@ -151,4 +142,3 @@ def admin(bot: telebot.TeleBot, message):
                 from tools_admin.delete_quest import delete_quest
                 delete_quest(message)
                 bot.send_message(message.chat.id, "Вопрос добавлен!")
-                admin(bot, message)

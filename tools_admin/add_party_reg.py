@@ -4,7 +4,7 @@ from database import db_session
 from database.inter_party import InterParty
 
 
-def add_party(bot, message):
+def add_party_reg(bot, message):
     file_info = bot.get_file(message.document.file_id)
     downloaded_file = bot.download_file(file_info.file_path)
     src = os.path.abspath(message.document.file_name)
@@ -18,12 +18,12 @@ def add_party(bot, message):
         party_reg = InterParty()
         for j in range(0, 4):
             if j == 0:
-                party_reg.name = sheet[i][j].value
+                party_reg.date_start = sheet[i][j].value
             elif j == 1:
                 party_reg.comment = sheet[i][j].value
             elif j == 2:
-                party_reg.man_now = 0
-            elif j == 3:
                 party_reg.man_max = sheet[i][j].value
+            elif j == 3:
+                party_reg.man_now = 0
                 db_sess.add(party_reg)
                 db_sess.commit()
