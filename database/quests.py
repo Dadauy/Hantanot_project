@@ -10,4 +10,3 @@ class Quest(SqlAlchemyBase):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)  # id вопроса
     quest = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # вопрос
     chat_id = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # кто задал по chat_id
-    response = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # ответ
