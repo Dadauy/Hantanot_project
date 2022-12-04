@@ -22,7 +22,6 @@ global user_reg
 user_reg = UserReg()
 
 
-
 def checker():
     while True:
         schedule.run_pending()
@@ -34,15 +33,22 @@ def user(bot: telebot.TeleBot, message, db_sess):
     bot.send_message(message.chat.id, default_messages_user.HELLO_MESSAGE)
     bot.send_message(message.chat.id, "Хотите узнать обо мне побольше?", reply_markup=keyboards_user.get_welcomekb())
     # !timer!
+    day_to_start = datetime.timedelta(days=0)
+    res = db_sess.query(Programma).first()
+
+    if res != None:
+        start_date = res.date_start
+        date_now = datetime.now()
+        day_to_start = start_date - date_now
 
     def check_days():
         def send_function():
             data = ""
-            if day_to_start == 7:
+            if day_to_start.days == 7:
                 data = "!ВНИМАНИЕ До начала форума осталась неделя!"
-            if day_to_start == 3:
+            if day_to_start.days == 3:
                 data = "!ВНИМАНИЕ До начала форума осталось 3 дня!"
-            if day_to_start == 1:
+            if day_to_start.days == 1:
                 data = "!ВНИМАНИЕ До начала форума остался один день!"
             rusers = db_sess.query(UserReg).all()
             for user in rusers:
@@ -50,9 +56,7 @@ def user(bot: telebot.TeleBot, message, db_sess):
 
         return send_function
 
-    schedule.every().day('00:00').do(check_days())
-
-
+    schedule.every().day.at('00:00').do(check_days())
 
     # callback handlers
     @bot.callback_query_handler(func=lambda call: call.data == 'about')  # Обработка кнопки описания
@@ -366,8 +370,6 @@ def user(bot: telebot.TeleBot, message, db_sess):
             bot.send_message(message.chat.id, "Ничего страшного!\nМожете попробовать снова!",
                              reply_markup=keyboards_user.get_go_to_main_menukb())
 
-
     scheduleThread = Thread(target=checker)
     scheduleThread.daemon = True
     scheduleThread.start()
-
