@@ -11,5 +11,5 @@ class InterParty(SqlAlchemyBase):
     date_start = sqlalchemy.Column(sqlalchemy.DateTime, nullable=True)  # дата и время начала
     comment = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # дата и время начала
     man_now = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)  # человек зарегано сейчас
-    man_max = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # максимум человек
+    man_max = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)  # максимум человек
 

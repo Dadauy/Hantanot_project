@@ -103,3 +103,13 @@ def get_next():
     kb.add(btn1)
 
     return kb
+
+def get_other_ivents():
+    kb = types.InlineKeyboardMarkup()
+
+    btn1 = types.InlineKeyboardButton(text='Записаться на другие мероприятия', callback_data='reg_ivents')
+    btn2 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
+
+    kb.row(btn1)
+    kb.row(btn2)
+    return kb

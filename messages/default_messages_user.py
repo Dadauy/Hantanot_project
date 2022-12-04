@@ -1,5 +1,9 @@
 import surrogates
 from database.users_reg import UserReg
+from database.inter_party import InterParty
+
+mon = ['января', 'февраля', 'марта', "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября",
+       "декабря"]
 
 #emoji
 emojicode = {
@@ -86,4 +90,12 @@ def get_data(user_reg: UserReg):
     print(data)
 
 
+    return data
+
+# Информация о небольших ивентах
+def get_info_ivent(ivent: InterParty):
+    data = ivent.comment + "\n\n"
+    data += "Начало: {} {} {}:{}\n\n".format(ivent.date_start.day, mon[ivent.date_start.month - 1], ivent.date_start.hour, ivent.date_start.minute)
+    data += "Сейчас зарегистрировано {} человек\n\n".format(str(ivent.man_now))
+    data += "Максимальное количество мест: {}".format(str(ivent.man_max))
     return data

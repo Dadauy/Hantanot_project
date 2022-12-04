@@ -9,6 +9,8 @@ from database.organizators import Moder
 from database.speakers import Speaker
 from database.temas import Tema
 from database.users_reg import UserReg
+from database.inter_party import InterParty
+from database.inter_party_reg import InterPartyReg
 
 global user_reg
 user_reg = UserReg()
@@ -62,12 +64,16 @@ def user(bot: telebot.TeleBot, message, db_sess):
         if id == default_messages_user.emojicode['4']:
             return
         if id == default_messages_user.emojicode['5']:
-            msg = bot.send_message(message.chat.id,
-                                   "Начало регистрации{}\nВведите своё имя:".format(
-                                       default_messages_user.emojicode['pen']))
+            if db_sess.query(UserReg).filter(UserReg.id_tg == message.chat.id).first() == None:
+                msg = bot.send_message(message.chat.id,
+                                       "Начало регистрации{}\nВведите своё имя:".format(
+                                           default_messages_user.emojicode['pen']))
 
-            user_reg.id_tg = message.chat.id
-            bot.register_next_step_handler(msg, step_name)
+                user_reg.id_tg = message.chat.id
+                bot.register_next_step_handler(msg, step_name)
+            else:
+                bot.send_message(message.chat.id, "Вы уже зарегестрированы на IT-форум!\n",
+                                 reply_markup=keyboards_user.get_other_ivents())
             return
 
         # если пользователь что-то написал, а не нажал на клавиатуру
@@ -152,6 +158,44 @@ def user(bot: telebot.TeleBot, message, db_sess):
         des = "Имя: " + moder.name + "\n"
         des += "Немного о спикере: " + moder.comment
         bot.send_message(call.message.chat.id, des, reply_markup=keyboards_user.get_go_to_main_menukb())
+
+    # Вывод маленьких событий
+    @bot.callback_query_handler(func=lambda call: call.data == 'reg_ivents')
+    def send_ivents(call):
+        ivents = db_sess.query(InterParty).all()
+
+        for ivent in ivents:
+            data = default_messages_user.get_info_ivent(ivent)
+            kb = telebot.types.InlineKeyboardMarkup()
+            cdata = "ivent_for_reg" + str(ivent.id)
+            btn = telebot.types.InlineKeyboardButton(text="Зарегистрироваться", callback_data=cdata)
+            kb.add(btn)
+            bot.send_message(call.message.chat.id, data, reply_markup=kb)
+
+    # Обработчик запросов на регистрацию
+    @bot.callback_query_handler(func=lambda call: call.data.startswith('ivent_for_reg'))
+    def try_reg(call):
+        ivent_id = int(call.data.replace('ivent_for_reg', ''))
+        ivent = db_sess.query(InterParty).filter(InterParty.id == ivent_id).first()
+        list_reg = db_sess.query(InterPartyReg).filter(InterPartyReg.chatid == call.message.chat.id).all()
+        if list_reg != None:
+            for reg in list_reg:
+                if reg.id_party == ivent.id:
+                    bot.send_message(call.message.chat.id, "Вы уже зарегистрированы!",
+                                     reply_markup=keyboards_user.get_other_ivents())
+                    return
+        if int(ivent.man_now) >= int(ivent.man_max):
+            bot.send_message(call.message.chat.id,
+                             "Все места уже заняты!{}".format(default_messages_user.emojicode['confused']),
+                             reply_markup=keyboards_user.get_other_ivents())
+            return
+        reg = InterPartyReg(id_party=ivent_id, chatid=call.message.chat.id)
+        ivent.man_now = ivent.man_now + 1
+        db_sess.add(ivent)
+        db_sess.add(reg)
+        db_sess.commit()
+        bot.send_message(call.message.chat.id, "Вы успешно зарегистрирваны",
+                         reply_markup=keyboards_user.get_other_ivents())
 
     # Шаги регистрации
     def step_name(message):
@@ -247,7 +291,7 @@ def user(bot: telebot.TeleBot, message, db_sess):
         if message.text == default_messages_user.emojicode['ok']:
             db_sess.add(user_reg)
             db_sess.commit()
-            bot.send_message(message.chat.id, "Вы успешно заргистрированы!",
+            bot.send_message(message.chat.id, "{0}Вы успешно заргистрированы!{0}".format(default_messages_user.emojicode['tada']),
                              reply_markup=keyboards_user.get_go_to_main_menukb())
         else:
             bot.send_message(message.chat.id, "Ничего страшного!\nМожете попробовать снова!",
