@@ -113,3 +113,14 @@ def get_other_ivents():
     kb.row(btn1)
     kb.row(btn2)
     return kb
+
+def get_menu_quest():
+    kb = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton(text="Часто задаваемые вопросы", callback_data='bestq')
+    btn2 = types.InlineKeyboardButton(text="Задать вопрос организатору", callback_data='quest')
+    btn3 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
+    kb.row(btn1)
+    kb.row(btn2)
+    kb.row(btn3)
+
+    return kb

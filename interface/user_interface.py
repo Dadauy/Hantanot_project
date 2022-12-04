@@ -11,6 +11,8 @@ from database.temas import Tema
 from database.users_reg import UserReg
 from database.inter_party import InterParty
 from database.inter_party_reg import InterPartyReg
+from database.best_questions import BestQuestion
+from database.quests import Quest
 
 global user_reg
 user_reg = UserReg()
@@ -62,6 +64,7 @@ def user(bot: telebot.TeleBot, message, db_sess):
         if id == default_messages_user.emojicode['3']:
             return
         if id == default_messages_user.emojicode['4']:
+            bot.send_message(message.chat.id, "Выберите пункт:", reply_markup=keyboards_user.get_menu_quest())
             return
         if id == default_messages_user.emojicode['5']:
             if db_sess.query(UserReg).filter(UserReg.id_tg == message.chat.id).first() == None:
@@ -197,6 +200,29 @@ def user(bot: telebot.TeleBot, message, db_sess):
         bot.send_message(call.message.chat.id, "Вы успешно зарегистрирваны",
                          reply_markup=keyboards_user.get_other_ivents())
 
+    # Вывод частозадаваемых вопросов
+    @bot.callback_query_handler(func=lambda call: call.data.startswith('bestq'))
+    def get_bestquestion(call):
+        bq_list = db_sess.query(BestQuestion).all()
+        for quest in bq_list:
+            bot.send_message(call.message.chat.id, "Вопрос: " + quest.quest + "\n" + "Ответ: " + quest.response)
+        bot.send_message(call.message.chat.id, "Если не нашли свой вопрос здесь, можете задать вопрос самостоятельно!",
+                         reply_markup=keyboards_user.get_menu_quest())
+
+    # Задаём вопрос
+    @bot.callback_query_handler(func=lambda call: call.data.startswith('quest'))
+    def ask_quest(call):
+        quest = Quest(chat_id=str(call.message.chat.id))
+        bot.send_message(call.message.chat.id, "Задайте свой вопрос!")
+
+        @bot.message_handler(content_types=['text'])
+        def get_quest(message):
+            quest.quest = message.text
+            db_sess.add(quest)
+            db_sess.commit()
+            bot.send_message(message.chat.id, "Вопрос был отправлен оранизаторам, и скоро вам придёт ответ",
+                             reply_markup=keyboards_user.get_menu_quest())
+
     # Шаги регистрации
     def step_name(message):
         user_reg.name = message.text
@@ -291,7 +317,8 @@ def user(bot: telebot.TeleBot, message, db_sess):
         if message.text == default_messages_user.emojicode['ok']:
             db_sess.add(user_reg)
             db_sess.commit()
-            bot.send_message(message.chat.id, "{0}Вы успешно заргистрированы!{0}".format(default_messages_user.emojicode['tada']),
+            bot.send_message(message.chat.id,
+                             "{0}Вы успешно заргистрированы!{0}".format(default_messages_user.emojicode['tada']),
                              reply_markup=keyboards_user.get_go_to_main_menukb())
         else:
             bot.send_message(message.chat.id, "Ничего страшного!\nМожете попробовать снова!",
