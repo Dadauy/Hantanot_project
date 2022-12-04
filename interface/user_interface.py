@@ -1,4 +1,7 @@
 import telebot
+import schedule
+from threading import Thread
+from time import sleep
 
 from messages import default_messages_user, keyboards_user
 from interface.user_utils import register
@@ -13,15 +16,43 @@ from database.inter_party import InterParty
 from database.inter_party_reg import InterPartyReg
 from database.best_questions import BestQuestion
 from database.quests import Quest
+import datetime
 
 global user_reg
 user_reg = UserReg()
+
+
+
+def checker():
+    while True:
+        schedule.run_pending()
+        sleep(1)
 
 
 def user(bot: telebot.TeleBot, message, db_sess):
     # Стартовое приветствие
     bot.send_message(message.chat.id, default_messages_user.HELLO_MESSAGE)
     bot.send_message(message.chat.id, "Хотите узнать обо мне побольше?", reply_markup=keyboards_user.get_welcomekb())
+    # !timer!
+
+    def check_days():
+        def send_function():
+            data = ""
+            if day_to_start == 7:
+                data = "!ВНИМАНИЕ До начала форума осталась неделя!"
+            if day_to_start == 3:
+                data = "!ВНИМАНИЕ До начала форума осталось 3 дня!"
+            if day_to_start == 1:
+                data = "!ВНИМАНИЕ До начала форума остался один день!"
+            rusers = db_sess.query(UserReg).all()
+            for user in rusers:
+                bot.send_message(user.id_tg, data)
+
+        return send_function
+
+    schedule.every().day('00:00').do(check_days())
+
+
 
     # callback handlers
     @bot.callback_query_handler(func=lambda call: call.data == 'about')  # Обработка кнопки описания
@@ -62,6 +93,17 @@ def user(bot: telebot.TeleBot, message, db_sess):
 
             return
         if id == default_messages_user.emojicode['3']:
+            id = message.chat.id
+            user_r = db_sess.query(UserReg).filter(UserReg.id_tg == id).first()
+            if user_r == None:
+                bot.send_message(message.chat.id,
+                                 "Я оповещу вас о начале Мероприятия за неделю, за 3 дня, за час, но для этого вам нужно зарегистрироваться(5 пункт главного меню)",
+                                 reply_markup=keyboards_user.get_go_to_main_menukb())
+            else:
+                bot.send_message(message.chat.id,
+                                 "Вы уже заргеистрированы, я оповещу вас о начале мероприятия!{}".format(
+                                     default_messages_user.emojicode['smile']),
+                                 reply_markup=keyboards_user.get_go_to_main_menukb())
             return
         if id == default_messages_user.emojicode['4']:
             bot.send_message(message.chat.id, "Выберите пункт:", reply_markup=keyboards_user.get_menu_quest())
@@ -323,3 +365,9 @@ def user(bot: telebot.TeleBot, message, db_sess):
         else:
             bot.send_message(message.chat.id, "Ничего страшного!\nМожете попробовать снова!",
                              reply_markup=keyboards_user.get_go_to_main_menukb())
+
+
+    scheduleThread = Thread(target=checker)
+    scheduleThread.daemon = True
+    scheduleThread.start()
+
