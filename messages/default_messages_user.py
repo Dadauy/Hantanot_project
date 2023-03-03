@@ -32,7 +32,7 @@ emojicode = {
 
 }
 
-HELLO_MESSAGE = "Привет!{}\nМеня зовут ITForumUgra_bot{}\nЯ телеграмбот созданный специально для ИТ-форума".format(
+HELLO_MESSAGE = "Добро пожаловать в чат-бот IT-Форума! {}{}\nВы также можете воспользоваться нашим сайтом. \nДля помощи выберите интересующий вопрос.".format(
     emojicode['hello'], emojicode['bot'])
 
 MAIN_MENU = [

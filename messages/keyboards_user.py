@@ -124,3 +124,17 @@ def get_menu_quest():
     kb.row(btn3)
 
     return kb
+
+def get_go_to_main_site():
+    kb = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton(text="Перейти на сайт IT форума", url="https://itforum.admhmao.ru/")
+    kb.add(btn1)
+    return kb
+
+def get_go_to_main_site_and_main_menu():
+    kb = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton(text="Перейти на сайт IT форума", url="https://itforum.admhmao.ru/")
+    btn2 = types.InlineKeyboardButton(text="Перейти в основное меню", callback_data='main_menu')
+    kb.add(btn1)
+    kb.add(btn2)
+    return kb

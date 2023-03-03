@@ -4,7 +4,7 @@ from threading import Thread
 from time import sleep
 
 from messages import default_messages_user, keyboards_user
-from interface.user_utils import register
+from sqlalchemy.orm import Session
 from database import db_session
 from database.party import Party
 from database.programma import Programma
@@ -16,6 +16,7 @@ from database.inter_party import InterParty
 from database.inter_party_reg import InterPartyReg
 from database.best_questions import BestQuestion
 from database.quests import Quest
+from database.all_users import AllUsers
 import datetime
 
 global user_reg
@@ -28,17 +29,38 @@ def checker():
         sleep(1)
 
 
-def user(bot: telebot.TeleBot, message, db_sess):
-    # Стартовое приветствие
-    bot.send_message(message.chat.id, default_messages_user.HELLO_MESSAGE)
-    bot.send_message(message.chat.id, "Хотите узнать обо мне побольше?", reply_markup=keyboards_user.get_welcomekb())
+def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session):
+    # Проверка токена:
+    current_user: AllUsers = db_sess.query(AllUsers).filter(AllUsers.chat_id == message.chat.id).first()
+    if current_user.code == "0":
+        bot.send_message(message.chat.id, "Введите пожалуйста код!")
+
+        @bot.message_handler(content_types=['text'])
+        def check_code(message: telebot.types.Message):
+            if message.text.startswith("it2023#"):
+                current_user.code = message.text
+                db_sess.commit()
+                # Стартовое приветствие
+                bot.send_message(message.chat.id, default_messages_user.HELLO_MESSAGE,
+                                 reply_markup=keyboards_user.get_go_to_main_site_and_main_menu())
+
+            else:
+                bot.send_message(message.chat.id, "Ваш код недействителен, перейдите на сайт для получения кода.",
+                                 reply_markup=keyboards_user.get_go_to_main_site())
+
+        return
+    else:
+        # Стартовое приветствие
+        bot.send_message(message.chat.id, default_messages_user.HELLO_MESSAGE,
+                         reply_markup=keyboards_user.get_go_to_main_site_and_main_menu())
+
     # !timer!
     day_to_start = datetime.timedelta(days=0)
     res = db_sess.query(Programma).first()
 
     if res != None:
         start_date = res.date_start
-        date_now = datetime.now()
+        date_now = datetime.datetime.now()
         day_to_start = start_date - date_now
 
     def check_days():

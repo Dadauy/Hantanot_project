@@ -17,7 +17,8 @@ def start_hello(message):
     if res is None:
         user = AllUsers(
             chat_id=message.chat.id,
-            law=0
+            law=0,
+            code="0"
         )
         db_sess.add(user)
         db_sess.commit()
@@ -27,6 +28,7 @@ def start_hello(message):
     elif res.law == 2:
         moder_interface.moder(bot, message)
     elif res.law == 0:
+
         user_interface.user(bot, message, db_sess)
 
 
