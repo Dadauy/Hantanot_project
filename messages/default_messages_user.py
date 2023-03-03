@@ -54,10 +54,11 @@ def get_decription(party):
 
 def get_ivent_description(ivent):
     des = ivent.name
-    des += "\n Мероприятие начинается в {}:{}".format(ivent.date_start.hour, ivent.date_start.minute)
-    des += "\n Мероприятие заканчивается в {}:{}".format(ivent.date_finish.hour, ivent.date_finish.minute)
+    des += "\n Мероприятие начинается в {}:{}".format(ivent.date_start.hour, str(ivent.date_start.minute).rjust(2, "0"))
+    des += "\n Мероприятие заканчивается в {}:{}".format(ivent.date_finish.hour, str(ivent.date_finish.minute).rjust(2, "0"))
     des += "\nБудет проходить: " + ivent.place
-    des += "\nНемного о мероприятии:\n" + ivent.comment
+    if ivent.comment != None:
+        des += "\nНемного о мероприятии:\n" + ivent.comment
     return des
 
 

@@ -159,13 +159,41 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
     @bot.callback_query_handler(func=lambda call: call.data.startswith("day_num"))
     def select_day(call):
         day_num = int(call.data.replace("day_num", ""))
-        bot.send_message(call.message.chat.id, "Расписание на день:")
-        ivents = db_sess.query(Programma).all()
-
+        ivents: list[Programma] = db_sess.query(Programma).all()
+        ucls = False
+        expo = False
         for ivent in ivents:
             if ivent.date_start.day == day_num:
+                if ivent.place.startswith("КТЦ «Югра-Классик»"):
+                    ucls = True
+                elif ivent.place.startswith("КВЦ «Югра-Экспо»"):
+                    expo = True
+        if ucls and expo:
+            bot.send_message(call.message.chat.id, "Выберите место проведения:",
+                             reply_markup=keyboards_user.get_places_kb(1, day_num))
+        elif ucls:
+            bot.send_message(call.message.chat.id, "Выберите место проведения:",
+                             reply_markup=keyboards_user.get_places_kb(2, day_num))
+        elif expo:
+            bot.send_message(call.message.chat.id, "Выберите место проведения:",
+                             reply_markup=keyboards_user.get_places_kb(3, day_num))
+
+    @bot.callback_query_handler(func=lambda call: call.data.startswith("prog"))
+    def get_program_for_day(call):
+        type = int(call.data.replace("prog", "").split("*")[1])
+        place = ""
+        if type == 1:
+            place = "КТЦ «Югра-Классик»"
+        elif type == 2:
+            place = "КВЦ «Югра-Экспо»"
+        day = int(call.data.replace("prog", "").split("*")[0])
+        bot.send_message(call.message.chat.id, "Расписание на день:")
+        ivents = db_sess.query(Programma).all()
+        for ivent in ivents:
+            if ivent.date_start.day == day and ivent.place.startswith(place):
                 des = default_messages_user.get_ivent_description(ivent)
-                bot.send_message(call.message.chat.id, des, reply_markup=keyboards_user.get_kb_for_programma(ivent.id))
+                bot.send_message(call.message.chat.id, des)
+
         bot.send_message(call.message.chat.id, "Вот все мероприятия на этот день!",
                          reply_markup=keyboards_user.get_go_to_main_menukb())
 
@@ -186,7 +214,7 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
 
     # Даёт список Спикеров
     @bot.callback_query_handler(func=lambda call: call.data.startswith("speaker_num"))
-    def select_moder(call):
+    def select_speaker(call):
         id_ivent = int(call.data.replace("speaker_num", ""))
         speakers = db_sess.query(Speaker).filter(Speaker.id_party == id_ivent).all()
         bot.send_message(call.message.chat.id, "Список спикеров:")
