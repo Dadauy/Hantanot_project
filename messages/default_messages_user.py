@@ -53,46 +53,15 @@ def get_decription(party):
 
 
 def get_ivent_description(ivent):
-    des = ivent.name
-    des += "\n Мероприятие начинается в {}:{}".format(ivent.date_start.hour, str(ivent.date_start.minute).rjust(2, "0"))
-    des += "\n Мероприятие заканчивается в {}:{}".format(ivent.date_finish.hour, str(ivent.date_finish.minute).rjust(2, "0"))
-    des += "\nБудет проходить: " + ivent.place
+    des = "<strong>" + ivent.name + "</strong>\n"
+    des += "\n<strong>Время проведения:</strong>\n{}:{} - {}:{}".format(ivent.date_start.hour,
+                                                                        str(ivent.date_start.minute).rjust(2, "0"),
+                                                                        ivent.date_finish.hour,
+                                                                        str(ivent.date_finish.minute).rjust(2, "0"))
+    des += "\n<strong>Место проведения:</strong> \n" + ivent.place
     if ivent.comment != None:
-        des += "\nНемного о мероприятии:\n" + ivent.comment
+        des += "\n<strong>Немного о мероприятии:</strong>\n" + ivent.comment
     return des
-
-
-def get_data(user_reg: UserReg):
-    data = "Имя: " + user_reg.name + "\n"
-    data += "Фамилия: " + user_reg.surname + "\n"
-    data += "Отчество: " + user_reg.patronymic + "\n"
-    data += "Имя на английском: " + user_reg.name_eng + "\n"
-    data += "Фамилия на английском: " + user_reg.surname_eng + "\n"
-    data += "Место работы: " + user_reg.organization + "\n"
-    data += "Формат участия: "
-    if user_reg.format_challenge:
-        data += "очно\n"
-    else:
-        data += "заочно\n"
-    data += "СМИ: "
-    if user_reg.in_smi:
-        data += "ДА\n"
-    else:
-        data += "НЕТ\n"
-    data += "Страна: " + user_reg.country + "\n"
-    data += "Город: " + user_reg.city + "\n"
-    data += "email: " + user_reg.email + "\n"
-    data += "Номер телефона: " + user_reg.number + "\n"
-    data += "Язык: " + user_reg.language + "\n"
-    data += "Место работы: " + user_reg.organization + "\n"
-    data += "Согласие на обработку данных:"
-    if user_reg.agreement:
-        data += "ДА\n"
-    else:
-        data += "НЕТ\n"
-    print(data)
-
-    return data
 
 
 # Информация о небольших ивентах

@@ -59,21 +59,6 @@ def get_daykb(programma: list[Programma]):
     return kb
 
 
-def get_kb_for_programma(ivent_id):
-    kb = types.InlineKeyboardMarkup()
-    data1 = "moder_num" + str(ivent_id)
-    data2 = "speaker_num" + str(ivent_id)
-    data3 = "obs_num" + str(ivent_id)
-
-    btn1 = types.InlineKeyboardButton(text="Список организаторов", callback_data=data1)
-    btn2 = types.InlineKeyboardButton(text="Список спикеров", callback_data=data2)
-    btn3 = types.InlineKeyboardButton(text="Список тем, которые будут обсуждаться", callback_data=data3)
-    kb.row(btn1)
-    kb.row(btn2)
-    kb.row(btn3)
-
-    return kb
-
 
 def get_acceptkb():
     kb = types.ReplyKeyboardMarkup(one_time_keyboard=True)
@@ -84,23 +69,6 @@ def get_acceptkb():
 
     return kb
 
-
-def get_formatkb():
-    kb = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-    btn1 = types.KeyboardButton(text="очно")
-    btn2 = types.KeyboardButton(text="заочно")
-    kb.add(btn1, btn2)
-
-    return kb
-
-
-def get_smi():
-    kb = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-    btn1 = types.KeyboardButton(text="да")
-    btn2 = types.KeyboardButton(text="нет")
-    kb.add(btn1, btn2)
-
-    return kb
 
 
 def get_next():
