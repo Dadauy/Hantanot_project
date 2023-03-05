@@ -27,7 +27,6 @@ def checker():
 
 
 def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session):
-
     # Проверка токена:
     current_user: AllUsers = db_sess.query(AllUsers).filter(AllUsers.chat_id == message.chat.id).first()
     if current_user.code == "0":
@@ -125,6 +124,11 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
         if id == default_messages_user.emojicode['4']:
             bot.send_message(message.chat.id, "Выберите пункт:", reply_markup=keyboards_user.get_menu_quest())
             return
+        if id == default_messages_user.emojicode['5']:
+            bot.send_message(message.chat.id,
+                             "Помимо основной программы на IT форуме будут проходить следующие мероприятия:",
+                             reply_markup=keyboards_user.get_other_ivents())
+            return
 
         # если пользователь что-то написал, а не нажал на клавиатуру
         msg = bot.send_message(message.chat.id,
@@ -187,7 +191,7 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
             cdata = "ivent_for_reg" + str(ivent.id)
             btn = telebot.types.InlineKeyboardButton(text="Зарегистрироваться", callback_data=cdata)
             kb.add(btn)
-            bot.send_message(call.message.chat.id, data, reply_markup=kb)
+            bot.send_message(call.message.chat.id, data, reply_markup=kb, parse_mode="HTML")
 
     # Обработчик запросов на регистрацию
     @bot.callback_query_handler(func=lambda call: call.data.startswith('ivent_for_reg'))
@@ -208,10 +212,9 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
             return
         reg = InterPartyReg(id_party=ivent_id, chatid=call.message.chat.id)
         ivent.man_now = ivent.man_now + 1
-        db_sess.add(ivent)
         db_sess.add(reg)
         db_sess.commit()
-        bot.send_message(call.message.chat.id, "Вы успешно зарегистрирваны",
+        bot.send_message(call.message.chat.id, "{0}Вы успешно зарегистрирваны!{0}".format(default_messages_user.emojicode["tada"]),
                          reply_markup=keyboards_user.get_other_ivents())
 
     # Вывод частозадаваемых вопросов

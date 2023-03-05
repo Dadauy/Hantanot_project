@@ -40,7 +40,7 @@ MAIN_MENU = [
     '2· {}Программа мероприятия{}'.format(emojicode['program'], emojicode['program']),
     '3· {}Подписаться на оповещение о начале IT-форума{}'.format(emojicode['kalendar'], emojicode['kalendar']),
     '4· {}Задать вопрос{}'.format(emojicode['quest'], emojicode['quest']),
-    '5· {}Регистрация{}'.format(emojicode['pen'], emojicode['pen']),
+    '5· {}Записаться на обзорную экскурсию{}'.format(emojicode['pen'], emojicode['pen']),
 ]
 
 
@@ -56,9 +56,9 @@ def get_decription(party):
 
 def get_ivent_description(ivent):
     des = "<strong>" + ivent.name + "</strong>\n"
-    des += "\n<strong>Время проведения:</strong>\n{}:{} - {}:{}".format(ivent.date_start.hour,
+    des += "\n<strong>Время проведения:</strong>\n{}:{} - {}:{}".format(str(ivent.date_start.hour).rjust(2, "0"),
                                                                         str(ivent.date_start.minute).rjust(2, "0"),
-                                                                        ivent.date_finish.hour,
+                                                                        str(ivent.date_finish.hour).rjust(2, "0"),
                                                                         str(ivent.date_finish.minute).rjust(2, "0"))
     des += "\n<strong>Место проведения:</strong> \n" + ivent.place
     if ivent.comment != None:
@@ -68,9 +68,10 @@ def get_ivent_description(ivent):
 
 # Информация о небольших ивентах
 def get_info_ivent(ivent: InterParty):
-    data = ivent.comment + "\n\n"
-    data += "Начало: {} {} {}:{}\n\n".format(ivent.date_start.day, mon[ivent.date_start.month - 1],
-                                             ivent.date_start.hour, ivent.date_start.minute)
+    data = "<strong>" + ivent.comment + "</strong>" + "\n\n"
+    data += "<strong>Начало:</strong> {} {} {}:{}\n\n".format(ivent.date_start.day, mon[ivent.date_start.month - 1],
+                                             str(ivent.date_start.hour).rjust(2, "0"),
+                                             str(ivent.date_start.minute).rjust(2, "0"))
     data += "Сейчас зарегистрировано {} человек\n\n".format(str(ivent.man_now))
     data += "Максимальное количество мест: {}".format(str(ivent.man_max))
     return data
