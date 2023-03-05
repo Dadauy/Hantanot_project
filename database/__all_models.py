@@ -9,3 +9,4 @@ from . import organizators
 from . import temas
 from . import inter_party
 from . import inter_party_reg
+from . import menu_points

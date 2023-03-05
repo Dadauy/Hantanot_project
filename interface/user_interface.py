@@ -27,6 +27,7 @@ def checker():
 
 
 def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session):
+
     # Проверка токена:
     current_user: AllUsers = db_sess.query(AllUsers).filter(AllUsers.chat_id == message.chat.id).first()
     if current_user.code == "0":

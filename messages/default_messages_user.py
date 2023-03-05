@@ -46,6 +46,8 @@ MAIN_MENU = [
 
 # old version == '3· {}Спикеры{}'.format(emojicode['mic'], emojicode['mic']),
 def get_decription(party):
+    if party == None:
+        return "GOODBYE"
     des = "Будет проходить мероприятие под названием {}\n".format(party.name)
     des += "Немного о мероприятии:\n{}\n".format(party.comment)
 
