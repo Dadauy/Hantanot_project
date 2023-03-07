@@ -1,6 +1,7 @@
 import surrogates
-from database.users_reg import UserReg
+from database.menu_points import MenuPoint
 from database.inter_party import InterParty
+from messages import keyboards_user
 
 mon = ['января', 'февраля', 'марта', "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября",
        "декабря"]
@@ -75,3 +76,13 @@ def get_info_ivent(ivent: InterParty):
     data += "Сейчас зарегистрировано {} человек\n\n".format(str(ivent.man_now))
     data += "Максимальное количество мест: {}".format(str(ivent.man_max))
     return data
+# Формирование главного меню
+def get_main_menu(menu_points: list[MenuPoint]):
+    menu = ""
+    cnt = 0
+    for menu_point in menu_points:
+        if menu_point.enable == 1:
+            cnt += 1
+            menu += str(cnt) + ' . {1} {0} {1} \n'.format(menu_point.text, menu_point.emoji)
+    return menu, keyboards_user.get_mainkb(menu_points)
+

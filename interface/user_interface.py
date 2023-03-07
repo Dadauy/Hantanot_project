@@ -6,24 +6,16 @@ from time import sleep
 from messages import default_messages_user, keyboards_user
 from sqlalchemy.orm import Session
 from database import db_session
-from database.party import Party
 from database.programma import Programma
-from database.organizators import Moder
-from database.speakers import Speaker
-from database.temas import Tema
 from database.users_reg import UserReg
 from database.inter_party import InterParty
 from database.inter_party_reg import InterPartyReg
 from database.best_questions import BestQuestion
 from database.quests import Quest
 from database.all_users import AllUsers
+from database.menu_points import MenuPoint
+from database.menu_for_guests import MenuPointGuest
 import datetime
-
-
-def checker():
-    while True:
-        schedule.run_pending()
-        sleep(1)
 
 
 def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session):
@@ -51,92 +43,27 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
         bot.send_message(message.chat.id, default_messages_user.HELLO_MESSAGE,
                          reply_markup=keyboards_user.get_go_to_main_site_and_main_menu())
 
-    # !timer!
-    day_to_start = datetime.timedelta(days=0)
-    res = db_sess.query(Programma).first()
-
-    if res != None:
-        start_date = res.date_start
-        date_now = datetime.datetime.now()
-        day_to_start = start_date - date_now
-
-    def check_days():
-        def send_function():
-            data = ""
-            if day_to_start.days == 7:
-                data = "!ВНИМАНИЕ До начала форума осталась неделя!"
-            if day_to_start.days == 3:
-                data = "!ВНИМАНИЕ До начала форума осталось 3 дня!"
-            if day_to_start.days == 1:
-                data = "!ВНИМАНИЕ До начала форума остался один день!"
-            rusers = db_sess.query(UserReg).all()
-            for user in rusers:
-                bot.send_message(user.id_tg, data)
-
-        return send_function
-
-    schedule.every().day.at('00:00').do(check_days())
+    menu_points: list[MenuPoint] = db_sess.query(MenuPoint).all()
+    menu_points_for_guest: list[MenuPointGuest] = db_sess.query(MenuPointGuest).all()
 
     @bot.callback_query_handler(
         func=lambda call: call.data == 'main_menu')  # обработка кнопки перезода к основному меню
     def start_main_menu(call):  # Вывод основного меню с клавиатурой
         bot.send_message(call.message.chat.id, 'Добро Пожаловать в основное меню!')
-        menu = ""
-        for punct in default_messages_user.MAIN_MENU:
-            menu += punct + "\n"
-        bot.send_message(call.message.chat.id, menu)  # Отправляем меню пользователю
+        menu, kb = default_messages_user.get_main_menu(menu_points)
+        bot.send_message(call.message.chat.id, menu, reply_markup=kb)
 
-        msg = bot.send_message(call.message.chat.id, 'Выберите интересующий вас пункт:',
-                               reply_markup=keyboards_user.get_mainkb())
-        bot.register_next_step_handler(msg, choice)  # Переход на следующий шаг взаимодействия с menu
-        # choice(msg)
+    # Пункт для гостей
+    @bot.callback_query_handler(func=lambda call: call.data == "for_guest")
+    def guest(call):
+        print("guest")
 
-    # main menu
-    def choice(message):
-        id = message.text
-
-        if id == default_messages_user.emojicode['1']:
-            ivent = db_sess.query(Party).get(1)
-            description = default_messages_user.get_decription(party=ivent)
-
-            bot.send_message(message.chat.id, description,
-                             reply_markup=keyboards_user.get_go_to_main_menukb())  # вывели инфу и предложили вернуться в галвное меню
-            return
-        if id == default_messages_user.emojicode['2']:
-            bot.send_message(message.chat.id,
-                             'Программа будет проходить в течении несокльких дней\nНа какой день вы бы хотели узнать программу:',
-                             reply_markup=keyboards_user.get_daykb(db_sess.query(Programma).all()))
-
-            return
-        if id == default_messages_user.emojicode['3']:
-            id = message.chat.id
-            user_r = db_sess.query(UserReg).filter(UserReg.id_tg == id).first()
-            if user_r == None:
-                bot.send_message(message.chat.id,
-                                 "Я оповещу вас о начале Мероприятия за неделю, за 3 дня, за час, но для этого вам нужно зарегистрироваться(5 пункт главного меню)",
-                                 reply_markup=keyboards_user.get_go_to_main_menukb())
-            else:
-                bot.send_message(message.chat.id,
-                                 "Вы уже заргеистрированы, я оповещу вас о начале мероприятия!{}".format(
-                                     default_messages_user.emojicode['smile']),
-                                 reply_markup=keyboards_user.get_go_to_main_menukb())
-            return
-        if id == default_messages_user.emojicode['4']:
-            bot.send_message(message.chat.id, "Выберите пункт:", reply_markup=keyboards_user.get_menu_quest())
-            return
-        if id == default_messages_user.emojicode['5']:
-            bot.send_message(message.chat.id,
-                             "Помимо основной программы на IT форуме будут проходить следующие мероприятия:",
-                             reply_markup=keyboards_user.get_other_ivents())
-            return
-
-        # если пользователь что-то написал, а не нажал на клавиатуру
-        msg = bot.send_message(message.chat.id,
-                               "Введены некоректные данные{}\nПожалуйста воспользуйтесь клавиатурой{}".format(
-                                   default_messages_user.emojicode["confused"],
-                                   default_messages_user.emojicode["smile"]),
-                               reply_markup=keyboards_user.get_mainkb())
-        bot.register_next_step_handler(msg, choice)
+    # Программа
+    @bot.callback_query_handler(func=lambda call: call.data == "program")
+    def program(call):
+        bot.send_message(call.message.chat.id,
+                         'Программа будет проходить в течении несокльких дней\nНа какой день вы бы хотели узнать программу:',
+                         reply_markup=keyboards_user.get_daykb(db_sess.query(Programma).all()))
 
     # Даёт расписание на день
     @bot.callback_query_handler(func=lambda call: call.data.startswith("day_num"))
@@ -214,7 +141,8 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
         ivent.man_now = ivent.man_now + 1
         db_sess.add(reg)
         db_sess.commit()
-        bot.send_message(call.message.chat.id, "{0}Вы успешно зарегистрирваны!{0}".format(default_messages_user.emojicode["tada"]),
+        bot.send_message(call.message.chat.id,
+                         "{0}Вы успешно зарегистрирваны!{0}".format(default_messages_user.emojicode["tada"]),
                          reply_markup=keyboards_user.get_other_ivents())
 
     # Вывод частозадаваемых вопросов

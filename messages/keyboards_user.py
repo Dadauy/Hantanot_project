@@ -2,6 +2,7 @@ from telebot import types
 from messages import default_messages_user
 from database import db_session
 from database.programma import Programma
+from database.menu_points import MenuPoint
 
 mon = ['января', 'февраля', 'марта', "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября",
        "декабря"]
@@ -28,14 +29,15 @@ def get_go_to_main_menukb():
 
 
 # Клавиатура для основного меню
-def get_mainkb():
-    kb = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
-    btn_list = []
-    for i in range(1, 7):
-        btn = types.KeyboardButton(default_messages_user.emojicode[str(i)])
-        btn_list.append(btn)
-    kb.row(btn_list[0], btn_list[1], btn_list[2])
-    kb.row(btn_list[3], btn_list[4])
+def get_mainkb(menu_points: list[MenuPoint]):
+    kb = types.InlineKeyboardMarkup()
+    cnt = 0
+    for menu_point in menu_points:
+        if menu_point.enable == 1:
+            cnt += 1
+            btn = types.InlineKeyboardButton(text=str(cnt) + ". " + menu_point.emoji,
+                                             callback_data=menu_point.callback_data)
+            kb.add(btn)
 
     return kb
 
@@ -59,7 +61,6 @@ def get_daykb(programma: list[Programma]):
     return kb
 
 
-
 def get_acceptkb():
     kb = types.ReplyKeyboardMarkup(one_time_keyboard=True)
     btn1 = types.KeyboardButton(text="{}".format(default_messages_user.emojicode['ok']))
@@ -68,7 +69,6 @@ def get_acceptkb():
     kb.row(btn1, btn2)
 
     return kb
-
 
 
 def get_next():
@@ -123,13 +123,13 @@ def get_places_kb(type: int, day: int):
     kb = types.InlineKeyboardMarkup()
     if type == 1:
         kb.add(types.InlineKeyboardButton(text="КТЦ «Югра-Классик» (ул.Мира, 22)",
-               callback_data="prog" + str(day) + "*" + str(1)))
+                                          callback_data="prog" + str(day) + "*" + str(1)))
         kb.add(types.InlineKeyboardButton(text="КВЦ «Югра-Экспо» (ул. Студенческая, 19)",
-               callback_data="prog" + str(day) + "*" + str(2)))
+                                          callback_data="prog" + str(day) + "*" + str(2)))
         return kb
     elif type == 2:
         kb.add(types.InlineKeyboardButton(text="КТЦ «Югра-Классик» (ул.Мира, 22)",
-               callback_data="prog" + str(day) + "*" + str(1)))
+                                          callback_data="prog" + str(day) + "*" + str(1)))
         return kb
     elif type == 3:
         kb.add(types.InlineKeyboardButton(text="КВЦ «Югра-Экспо» (ул. Студенческая, 19)",
