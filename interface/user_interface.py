@@ -1,13 +1,8 @@
 import telebot
-import schedule
-from threading import Thread
-from time import sleep
-
 from messages import default_messages_user, keyboards_user
 from sqlalchemy.orm import Session
 from database import db_session
 from database.programma import Programma
-from database.users_reg import UserReg
 from database.inter_party import InterParty
 from database.inter_party_reg import InterPartyReg
 from database.best_questions import BestQuestion
@@ -15,7 +10,6 @@ from database.quests import Quest
 from database.all_users import AllUsers
 from database.menu_points import MenuPoint
 from database.menu_for_guests import MenuPointGuest
-import datetime
 
 
 def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session):
@@ -64,6 +58,13 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
         bot.send_message(call.message.chat.id,
                          'Программа будет проходить в течении несокльких дней\nНа какой день вы бы хотели узнать программу:',
                          reply_markup=keyboards_user.get_daykb(db_sess.query(Programma).all()))
+
+    # Задать вопрос
+    @bot.callback_query_handler(func=lambda call: call.data == "ask_quest")
+    def ask_quest(call):
+        bot.send_message(call.message.chat.id,
+                         'Вы иожете отправить свой вопрос на почту Itforum@admhmao.ru, затем организаторы вам пришлют ответ!',
+                         reply_markup=keyboards_user.get_go_to_main_menukb())
 
     # Даёт расписание на день
     @bot.callback_query_handler(func=lambda call: call.data.startswith("day_num"))
@@ -167,7 +168,3 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
             db_sess.commit()
             bot.send_message(message.chat.id, "Вопрос был отправлен оранизаторам, и скоро вам придёт ответ",
                              reply_markup=keyboards_user.get_menu_quest())
-
-    scheduleThread = Thread(target=checker)
-    scheduleThread.daemon = True
-    scheduleThread.start()

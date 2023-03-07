@@ -126,12 +126,15 @@ def get_places_kb(type: int, day: int):
                                           callback_data="prog" + str(day) + "*" + str(1)))
         kb.add(types.InlineKeyboardButton(text="КВЦ «Югра-Экспо» (ул. Студенческая, 19)",
                                           callback_data="prog" + str(day) + "*" + str(2)))
+        kb.add(types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu'))
         return kb
     elif type == 2:
         kb.add(types.InlineKeyboardButton(text="КТЦ «Югра-Классик» (ул.Мира, 22)",
                                           callback_data="prog" + str(day) + "*" + str(1)))
+        kb.add(types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu'))
         return kb
     elif type == 3:
         kb.add(types.InlineKeyboardButton(text="КВЦ «Югра-Экспо» (ул. Студенческая, 19)",
                                           callback_data="prog" + str(day) + "*" + str(2)))
+        kb.add(types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu'))
         return kb
