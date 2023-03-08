@@ -120,6 +120,8 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
             btn = telebot.types.InlineKeyboardButton(text="Зарегистрироваться", callback_data=cdata)
             kb.add(btn)
             bot.send_message(call.message.chat.id, data, reply_markup=kb, parse_mode="HTML")
+            bot.send_message(call.message.chat.id, "Это всесь список экскурсий!",
+                             reply_markup=keyboards_user.get_go_to_main_menukb())
 
     # Обработчик запросов на регистрацию
     @bot.callback_query_handler(func=lambda call: call.data.startswith('ivent_for_reg'))
