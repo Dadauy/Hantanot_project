@@ -1,12 +1,11 @@
 import telebot
+from telebot import types
 from messages import default_messages_user, keyboards_user
 from sqlalchemy.orm import Session
 from database import db_session
 from database.programma import Programma
 from database.inter_party import InterParty
 from database.inter_party_reg import InterPartyReg
-from database.best_questions import BestQuestion
-from database.quests import Quest
 from database.all_users import AllUsers
 from database.menu_points import MenuPoint
 from database.menu_for_guests import MenuPointGuest
@@ -50,7 +49,10 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
     # Пункт для гостей
     @bot.callback_query_handler(func=lambda call: call.data == "for_guest")
     def guest(call):
-        print("guest")
+        bot.send_message(call.message.chat.id, 'Добро Пожаловать в меню для гостей!')
+        menu, kb = default_messages_user.get_main_menu(menu_points_for_guest)
+        kb.add(types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu'))
+        bot.send_message(call.message.chat.id, menu, reply_markup=kb)
 
     # Программа
     @bot.callback_query_handler(func=lambda call: call.data == "program")
@@ -63,8 +65,125 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
     @bot.callback_query_handler(func=lambda call: call.data == "ask_quest")
     def ask_quest(call):
         bot.send_message(call.message.chat.id,
-                         'Вы иожете отправить свой вопрос на почту Itforum@admhmao.ru, затем организаторы вам пришлют ответ!',
+                         'Вы можете отправить свой вопрос на почту Itforum@admhmao.ru, затем организаторы вам пришлют ответ!',
                          reply_markup=keyboards_user.get_go_to_main_menukb())
+
+    # Места прведения
+    @bot.callback_query_handler(func=lambda call: call.data == "place")
+    def place(call):
+        btn = types.InlineKeyboardButton(text="Перейти на сайт",
+                                         url="https://itforum.admhmao.ru/2023/ploshchadki-foruma/")
+        btn1 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
+        kb = types.InlineKeyboardMarkup()
+        kb.add(btn1, btn)
+        bot.send_message(call.message.chat.id, "Подробнее о месте проведения вы сможете узнать на сайте: ⬇️",
+                         reply_markup=kb)
+
+    # Партнёрам
+    @bot.callback_query_handler(func=lambda call: call.data == "partners")
+    def partners(call):
+        btn = types.InlineKeyboardButton(text="Перейти на сайт",
+                                         url="https://itforum.admhmao.ru/2023/partnery/")
+        btn1 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
+        kb = types.InlineKeyboardMarkup()
+        kb.add(btn1, btn)
+        bot.send_message(call.message.chat.id, "Подробнее о партнёрстве вы можете узнать на сайте: ⬇️",
+                         reply_markup=kb)
+
+    # Трансфер
+    @bot.callback_query_handler(func=lambda call: call.data == "car")
+    def car(call):
+        btn = types.InlineKeyboardButton(text="Перейти на сайт",
+                                         url="https://itforum.admhmao.ru/")
+        btn1 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
+        kb = types.InlineKeyboardMarkup()
+        kb.add(btn1, btn)
+        bot.send_message(call.message.chat.id, "Подробнее о трансфере вы можете узнать на сайте: ⬇️",
+                         reply_markup=kb)
+
+    # Как добраться
+    @bot.callback_query_handler(func=lambda call: call.data == "get_there")
+    def get_there(call):
+        btn = types.InlineKeyboardButton(text="Перейти на сайт",
+                                         url="https://visit-hm.ru/journals/10")
+        btn1 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
+        kb = types.InlineKeyboardMarkup()
+        kb.add(btn1, btn)
+        bot.send_message(call.message.chat.id, "Подробнее вы можете узнать на этом сайте: ⬇️",
+                         reply_markup=kb)
+
+    # Где остановиться
+    @bot.callback_query_handler(func=lambda call: call.data == "hotel")
+    def hotel(call):
+        btn = types.InlineKeyboardButton(text="Перейти на сайт",
+                                         url="https://itforum.admhmao.ru/2023/gostyam/6495844-gostinitsy/")
+        btn1 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
+        kb = types.InlineKeyboardMarkup()
+        kb.add(btn1, btn)
+        bot.send_message(call.message.chat.id, "Подробнее о гостиницах вы можете узнать на этом сайте: ⬇️",
+                         reply_markup=kb)
+
+    # Где поесть
+    @bot.callback_query_handler(func=lambda call: call.data == "food")
+    def food(call):
+        btn = types.InlineKeyboardButton(text="Перейти на сайт",
+                                         url="https://itforum.admhmao.ru/2023/gostyam/3353522-restorany/")
+        btn1 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
+        kb = types.InlineKeyboardMarkup()
+        kb.add(btn1, btn)
+        bot.send_message(call.message.chat.id, "Подробнее о ресторанах вы можете узнать на этом сайте: ⬇️",
+                         reply_markup=kb)
+
+    # бейдж
+    @bot.callback_query_handler(func=lambda call: call.data == "badge")
+    def badge(call):
+        btn = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
+        kb = types.InlineKeyboardMarkup()
+        kb.add(btn)
+        bot.send_message(call.message.chat.id, default_messages_user.BAGE_MESSAGE,
+                         reply_markup=kb)
+
+    # Плата за участие
+    @bot.callback_query_handler(func=lambda call: call.data == "participation_free")
+    def participation_free(call):
+        btn = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
+        btn1 = types.InlineKeyboardButton(text='Партнёрский пакет',
+                                          url="https://itforum.admhmao.ru/2023/partnery/6495838-partnerskiy-paket/")
+        kb = types.InlineKeyboardMarkup()
+        kb.add(btn, btn1)
+        bot.send_message(call.message.chat.id, default_messages_user.FREE_MESSAGE,
+                         reply_markup=kb)
+
+    # доклад
+    @bot.callback_query_handler(func=lambda call: call.data == "report")
+    def report(call):
+        btn = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
+        kb = types.InlineKeyboardMarkup()
+        kb.add(btn)
+        bot.send_message(call.message.chat.id, default_messages_user.REPORT_MESSAGE,
+                         reply_markup=kb)
+
+    # удостоверение
+    @bot.callback_query_handler(func=lambda call: call.data == "certificate")
+    def certificate(call):
+        btn = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
+        kb = types.InlineKeyboardMarkup()
+        kb.add(btn)
+        bot.send_message(call.message.chat.id, default_messages_user.CERTIFICATE_MESSAGE,
+                         reply_markup=kb)
+
+    # что посетить в свободное время
+
+    @bot.callback_query_handler(func=lambda call: call.data == "to_visit")
+    def to_visit(call):
+        btn = types.InlineKeyboardButton(text="Перейти на сайт",
+                                         url="https://itforum.admhmao.ru/")
+        btn1 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
+        kb = types.InlineKeyboardMarkup()
+        kb.add(btn1, btn)
+        bot.send_message(call.message.chat.id,
+                         "Подробнее о том, что можно посетить на досуге вы можете узнать на сайте: ⬇️",
+                         reply_markup=kb)
 
     # Даёт расписание на день
     @bot.callback_query_handler(func=lambda call: call.data.startswith("day_num"))
@@ -147,26 +266,3 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
         bot.send_message(call.message.chat.id,
                          "{0}Вы успешно зарегистрирваны!{0}".format(default_messages_user.emojicode["tada"]),
                          reply_markup=keyboards_user.get_other_ivents())
-
-    # Вывод частозадаваемых вопросов
-    @bot.callback_query_handler(func=lambda call: call.data.startswith('bestq'))
-    def get_bestquestion(call):
-        bq_list = db_sess.query(BestQuestion).all()
-        for quest in bq_list:
-            bot.send_message(call.message.chat.id, "Вопрос: " + quest.quest + "\n" + "Ответ: " + quest.response)
-        bot.send_message(call.message.chat.id, "Если не нашли свой вопрос здесь, можете задать вопрос самостоятельно!",
-                         reply_markup=keyboards_user.get_menu_quest())
-
-    # Задаём вопрос
-    @bot.callback_query_handler(func=lambda call: call.data.startswith('quest'))
-    def ask_quest(call):
-        quest = Quest(chat_id=str(call.message.chat.id))
-        bot.send_message(call.message.chat.id, "Задайте свой вопрос!")
-
-        @bot.message_handler(content_types=['text'])
-        def get_quest(message):
-            quest.quest = message.text
-            db_sess.add(quest)
-            db_sess.commit()
-            bot.send_message(message.chat.id, "Вопрос был отправлен оранизаторам, и скоро вам придёт ответ",
-                             reply_markup=keyboards_user.get_menu_quest())

@@ -32,14 +32,28 @@ def get_go_to_main_menukb():
 def get_mainkb(menu_points: list[MenuPoint]):
     kb = types.InlineKeyboardMarkup()
     cnt = 0
+    k = 0
+    btnlst = []
     for menu_point in menu_points:
         if menu_point.enable == 1:
             cnt += 1
+            k+=1
             btn = types.InlineKeyboardButton(text=str(cnt) + ". " + menu_point.emoji,
                                              callback_data=menu_point.callback_data)
-            kb.add(btn)
-
+            btnlst.append(btn)
+            if k == 3:
+                kb.add(btnlst[0], btnlst[1], btnlst[2])
+                k = 0
+                btnlst.clear()
+    if k == 1:
+        kb.add(btnlst[0])
+        btnlst.clear()
+    elif k == 2:
+        kb.add(btnlst[0], btnlst[1])
+        btnlst.clear()
     return kb
+
+
 
 
 # Клавиатура для дней
@@ -82,7 +96,7 @@ def get_next():
 def get_other_ivents():
     kb = types.InlineKeyboardMarkup()
 
-    btn1 = types.InlineKeyboardButton(text='Список мероприятий', callback_data='reg_ivents')
+    btn1 = types.InlineKeyboardButton(text='Список экскурсий', callback_data='reg_ivents')
     btn2 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
 
     kb.row(btn1)

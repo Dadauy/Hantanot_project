@@ -35,17 +35,12 @@ emojicode = {
 
 HELLO_MESSAGE = "Добро пожаловать в чат-бот IT-Форума! {}{}\nВы также можете воспользоваться нашим сайтом. \nДля помощи выберите интересующий вопрос.".format(
     emojicode['hello'], emojicode['bot'])
-
-MAIN_MENU = [
-    '1· {}О мероприятии{}'.format(emojicode['fire'], emojicode['fire']),
-    '2· {}Программа мероприятия{}'.format(emojicode['program'], emojicode['program']),
-    '3· {}Подписаться на оповещение о начале IT-форума{}'.format(emojicode['kalendar'], emojicode['kalendar']),
-    '4· {}Задать вопрос{}'.format(emojicode['quest'], emojicode['quest']),
-    '5· {}Записаться на обзорную экскурсию{}'.format(emojicode['pen'], emojicode['pen']),
-]
+BAGE_MESSAGE = "На стойке регистрации в КТЦ «Югра-Классик» (ул. Мира,22) с 5 по 7 июня. Рекомендуем Вам заблаговременно получить бейдж  5 июня после 16.00."
+FREE_MESSAGE = "Для представителей федеральных и региональных органов власти, местного самоуправления, государственных и муниципальных учреждений, некоммерческих организаций – участие бесплатное. Для представителей коммерческих организаций  - в соответствии с партнерским пакетом."
+REPORT_MESSAGE = "Необходимо до 25 мая направить тезисы доклада (примерно 1/2 машинописной страницы), указав тему, ФИО, должность и организацию на адрес (Itforum@admhmao.ru)."
+CERTIFICATE_MESSAGE = "Поставить отметку можно на стойках регистрации в КТЦ «Югра-Классик» (ул. Мира,22) и КВЦ «Югра-Экспо» (ул. Студенческая, 19"
 
 
-# old version == '3· {}Спикеры{}'.format(emojicode['mic'], emojicode['mic']),
 def get_decription(party):
     if party == None:
         return "GOODBYE"
@@ -71,11 +66,13 @@ def get_ivent_description(ivent):
 def get_info_ivent(ivent: InterParty):
     data = "<strong>" + ivent.comment + "</strong>" + "\n\n"
     data += "<strong>Начало:</strong> {} {} {}:{}\n\n".format(ivent.date_start.day, mon[ivent.date_start.month - 1],
-                                             str(ivent.date_start.hour).rjust(2, "0"),
-                                             str(ivent.date_start.minute).rjust(2, "0"))
+                                                              str(ivent.date_start.hour).rjust(2, "0"),
+                                                              str(ivent.date_start.minute).rjust(2, "0"))
     data += "Сейчас зарегистрировано {} человек\n\n".format(str(ivent.man_now))
     data += "Максимальное количество мест: {}".format(str(ivent.man_max))
     return data
+
+
 # Формирование главного меню
 def get_main_menu(menu_points: list[MenuPoint]):
     menu = ""
@@ -85,4 +82,3 @@ def get_main_menu(menu_points: list[MenuPoint]):
             cnt += 1
             menu += str(cnt) + ' . {1} {0} {1} \n'.format(menu_point.text, menu_point.emoji)
     return menu, keyboards_user.get_mainkb(menu_points)
-
