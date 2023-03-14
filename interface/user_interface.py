@@ -11,14 +11,32 @@ from database.menu_points import MenuPoint
 from database.menu_for_guests import MenuPointGuest
 
 
+class Util():
+    def __init__(self):
+        self.ivent_id: int = 0
+        self.ivent: InterParty | None = None
+        self.util_msg: types.Message | None = None
+
+
 def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session):
+    tool = Util()
     # Проверка токена:
     current_user: AllUsers = db_sess.query(AllUsers).filter(AllUsers.chat_id == message.chat.id).first()
-    if current_user.code == "0":
-        bot.send_message(message.chat.id, "Введите пожалуйста код!")
 
-        @bot.message_handler(content_types=['text'])
-        def check_code(message: telebot.types.Message):
+    if current_user.code == "0":
+        force_reply = types.ForceReply(True, "it2023#....")
+        bot.send_message(message.chat.id, "Введите пожалуйста код!", reply_markup=force_reply)
+    else:
+        # Стартовое приветствие
+        bot.send_message(message.chat.id, default_messages_user.HELLO_MESSAGE,
+                         reply_markup=keyboards_user.get_go_to_main_site_and_main_menu())
+
+    menu_points: list[MenuPoint] = db_sess.query(MenuPoint).all()
+    menu_points_for_guest: list[MenuPointGuest] = db_sess.query(MenuPointGuest).all()
+
+    @bot.message_handler(content_types=['text'])
+    def check_code(message: telebot.types.Message):
+        if current_user.state == 0:
             if message.text.startswith("it2023#"):
                 current_user.code = message.text
                 db_sess.commit()
@@ -27,17 +45,22 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
                                  reply_markup=keyboards_user.get_go_to_main_site_and_main_menu())
 
             else:
-                bot.send_message(message.chat.id, "Ваш код недействителен, перейдите на сайт для получения кода.",
+                bot.send_message(message.chat.id, "Ваш код недействителен, перейдите на сайт для его получения.",
                                  reply_markup=keyboards_user.get_go_to_main_site())
+                return
+        else:
+            if current_user.state == 1:
+                contact_data = message.text
 
-        return
-    else:
-        # Стартовое приветствие
-        bot.send_message(message.chat.id, default_messages_user.HELLO_MESSAGE,
-                         reply_markup=keyboards_user.get_go_to_main_site_and_main_menu())
-
-    menu_points: list[MenuPoint] = db_sess.query(MenuPoint).all()
-    menu_points_for_guest: list[MenuPointGuest] = db_sess.query(MenuPointGuest).all()
+                reg = InterPartyReg(id_party=tool.ivent_id, chatid=message.chat.id, contact_data=contact_data)
+                tool.ivent.man_now = tool.ivent.man_now + 1
+                db_sess.add(reg)
+                current_user.state = 0
+                db_sess.commit()
+                bot.send_message(message.chat.id,
+                                 "{0}Вы успешно зарегистрирваны!{0}".format(
+                                     default_messages_user.emojicode["tada"]),
+                                 reply_markup=keyboards_user.get_other_ivents())
 
     @bot.callback_query_handler(
         func=lambda call: call.data == 'main_menu')  # обработка кнопки перезода к основному меню
@@ -67,72 +90,6 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
         bot.send_message(call.message.chat.id,
                          'Вы можете отправить свой вопрос на почту Itforum@admhmao.ru, затем организаторы вам пришлют ответ!',
                          reply_markup=keyboards_user.get_go_to_main_menukb())
-
-    # Места прведения
-    @bot.callback_query_handler(func=lambda call: call.data == "place")
-    def place(call):
-        btn = types.InlineKeyboardButton(text="Перейти на сайт",
-                                         url="https://itforum.admhmao.ru/2023/ploshchadki-foruma/")
-        btn1 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
-        kb = types.InlineKeyboardMarkup()
-        kb.add(btn1, btn)
-        bot.send_message(call.message.chat.id, "Подробнее о месте проведения вы сможете узнать на сайте: ⬇️",
-                         reply_markup=kb)
-
-    # Партнёрам
-    @bot.callback_query_handler(func=lambda call: call.data == "partners")
-    def partners(call):
-        btn = types.InlineKeyboardButton(text="Перейти на сайт",
-                                         url="https://itforum.admhmao.ru/2023/partnery/")
-        btn1 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
-        kb = types.InlineKeyboardMarkup()
-        kb.add(btn1, btn)
-        bot.send_message(call.message.chat.id, "Подробнее о партнёрстве вы можете узнать на сайте: ⬇️",
-                         reply_markup=kb)
-
-    # Трансфер
-    @bot.callback_query_handler(func=lambda call: call.data == "car")
-    def car(call):
-        btn = types.InlineKeyboardButton(text="Перейти на сайт",
-                                         url="https://itforum.admhmao.ru/")
-        btn1 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
-        kb = types.InlineKeyboardMarkup()
-        kb.add(btn1, btn)
-        bot.send_message(call.message.chat.id, "Подробнее о трансфере вы можете узнать на сайте: ⬇️",
-                         reply_markup=kb)
-
-    # Как добраться
-    @bot.callback_query_handler(func=lambda call: call.data == "get_there")
-    def get_there(call):
-        btn = types.InlineKeyboardButton(text="Перейти на сайт",
-                                         url="https://visit-hm.ru/journals/10")
-        btn1 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
-        kb = types.InlineKeyboardMarkup()
-        kb.add(btn1, btn)
-        bot.send_message(call.message.chat.id, "Подробнее вы можете узнать на этом сайте: ⬇️",
-                         reply_markup=kb)
-
-    # Где остановиться
-    @bot.callback_query_handler(func=lambda call: call.data == "hotel")
-    def hotel(call):
-        btn = types.InlineKeyboardButton(text="Перейти на сайт",
-                                         url="https://itforum.admhmao.ru/2023/gostyam/6495844-gostinitsy/")
-        btn1 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
-        kb = types.InlineKeyboardMarkup()
-        kb.add(btn1, btn)
-        bot.send_message(call.message.chat.id, "Подробнее о гостиницах вы можете узнать на этом сайте: ⬇️",
-                         reply_markup=kb)
-
-    # Где поесть
-    @bot.callback_query_handler(func=lambda call: call.data == "food")
-    def food(call):
-        btn = types.InlineKeyboardButton(text="Перейти на сайт",
-                                         url="https://itforum.admhmao.ru/2023/gostyam/3353522-restorany/")
-        btn1 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
-        kb = types.InlineKeyboardMarkup()
-        kb.add(btn1, btn)
-        bot.send_message(call.message.chat.id, "Подробнее о ресторанах вы можете узнать на этом сайте: ⬇️",
-                         reply_markup=kb)
 
     # бейдж
     @bot.callback_query_handler(func=lambda call: call.data == "badge")
@@ -170,19 +127,6 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
         kb = types.InlineKeyboardMarkup()
         kb.add(btn)
         bot.send_message(call.message.chat.id, default_messages_user.CERTIFICATE_MESSAGE,
-                         reply_markup=kb)
-
-    # что посетить в свободное время
-
-    @bot.callback_query_handler(func=lambda call: call.data == "to_visit")
-    def to_visit(call):
-        btn = types.InlineKeyboardButton(text="Перейти на сайт",
-                                         url="https://itforum.admhmao.ru/")
-        btn1 = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu')
-        kb = types.InlineKeyboardMarkup()
-        kb.add(btn1, btn)
-        bot.send_message(call.message.chat.id,
-                         "Подробнее о том, что можно посетить на досуге вы можете узнать на сайте: ⬇️",
                          reply_markup=kb)
 
     # Даёт расписание на день
@@ -245,24 +189,21 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
     # Обработчик запросов на регистрацию
     @bot.callback_query_handler(func=lambda call: call.data.startswith('ivent_for_reg'))
     def try_reg(call):
-        ivent_id = int(call.data.replace('ivent_for_reg', ''))
-        ivent = db_sess.query(InterParty).filter(InterParty.id == ivent_id).first()
+        tool.ivent_id = int(call.data.replace('ivent_for_reg', ''))
+        tool.ivent = db_sess.query(InterParty).filter(InterParty.id == tool.ivent_id).first()
         list_reg = db_sess.query(InterPartyReg).filter(InterPartyReg.chatid == call.message.chat.id).all()
         if list_reg != None:
             for reg in list_reg:
-                if reg.id_party == ivent.id:
+                if reg.id_party == tool.ivent.id:
                     bot.send_message(call.message.chat.id, "Вы уже зарегистрированы!",
                                      reply_markup=keyboards_user.get_other_ivents())
                     return
-        if int(ivent.man_now) >= int(ivent.man_max):
+        if int(tool.ivent.man_now) >= int(tool.ivent.man_max):
             bot.send_message(call.message.chat.id,
                              "Все места уже заняты!{}".format(default_messages_user.emojicode['confused']),
                              reply_markup=keyboards_user.get_other_ivents())
             return
-        reg = InterPartyReg(id_party=ivent_id, chatid=call.message.chat.id)
-        ivent.man_now = ivent.man_now + 1
-        db_sess.add(reg)
-        db_sess.commit()
-        bot.send_message(call.message.chat.id,
-                         "{0}Вы успешно зарегистрирваны!{0}".format(default_messages_user.emojicode["tada"]),
-                         reply_markup=keyboards_user.get_other_ivents())
+        current_user.state = 1
+        force_reply = types.ForceReply(True, "ФИО и номер телефона📞")
+        bot.send_message(call.message.chat.id, text="Пожалуйста введите свои контактные данные:",
+                         reply_markup=force_reply)

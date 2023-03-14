@@ -80,5 +80,5 @@ def get_main_menu(menu_points: list[MenuPoint]):
     for menu_point in menu_points:
         if menu_point.enable == 1:
             cnt += 1
-            menu += str(cnt) + ' . {1} {0} {1} \n'.format(menu_point.text, menu_point.emoji)
+            menu += str(cnt) + ' . {1} {0} \n'.format(menu_point.text, menu_point.emoji)
     return menu, keyboards_user.get_mainkb(menu_points)

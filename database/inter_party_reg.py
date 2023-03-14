@@ -10,3 +10,4 @@ class InterPartyReg(SqlAlchemyBase):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)  # id party reg
     id_party = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)  # id party
     chatid = sqlalchemy.Column(sqlalchemy.String(), nullable=True)  # chatid
+    contact_data = sqlalchemy.Column(sqlalchemy.String(), nullable=True) # Контактные данные

@@ -18,7 +18,8 @@ def start_hello(message):
         user = AllUsers(
             chat_id=message.chat.id,
             law=0,
-            code="0"
+            code="0",
+            state=0
         )
         db_sess.add(user)
         db_sess.commit()

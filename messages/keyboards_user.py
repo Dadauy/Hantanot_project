@@ -37,9 +37,13 @@ def get_mainkb(menu_points: list[MenuPoint]):
     for menu_point in menu_points:
         if menu_point.enable == 1:
             cnt += 1
-            k+=1
-            btn = types.InlineKeyboardButton(text=str(cnt) + ". " + menu_point.emoji,
-                                             callback_data=menu_point.callback_data)
+            k += 1
+            if menu_point.url == None:
+                btn = types.InlineKeyboardButton(text=str(cnt) + ". " + menu_point.emoji,
+                                                 callback_data=menu_point.callback_data)
+            else:
+                btn = types.InlineKeyboardButton(text=str(cnt) + ". " + menu_point.emoji,
+                                                 url=menu_point.url)
             btnlst.append(btn)
             if k == 3:
                 kb.add(btnlst[0], btnlst[1], btnlst[2])
@@ -52,8 +56,6 @@ def get_mainkb(menu_points: list[MenuPoint]):
         kb.add(btnlst[0], btnlst[1])
         btnlst.clear()
     return kb
-
-
 
 
 # Клавиатура для дней
