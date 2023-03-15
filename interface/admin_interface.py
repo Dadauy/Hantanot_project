@@ -1,144 +1,104 @@
 import telebot
 from messages import default_messages_admin, keyboards_admin
+import os
+import openpyxl
+from database import db_session
+from database.programma import Programma
+from database.inter_party import InterParty
+import datetime
+
+
+def proverka(msg):
+    for c in ["КТЦ", "КВЦ", "Рестораны", "июня"]:
+        if c in msg:
+            return True
+    return False
+
+
+def test(bot, message):
+    file_info = bot.get_file(message.document.file_id)
+    downloaded_file = bot.download_file(file_info.file_path)
+    src = os.path.abspath(message.document.file_name)
+    with open(src, 'wb') as new_file:
+        new_file.write(downloaded_file)
+    book = openpyxl.open(src)
+    sheet = book.active
+    db_session.global_init("db/db_forum.db")
+    db_sess = db_session.create_session()
+    i = 1
+    while i < sheet.max_row + 1:
+        if "июня" in sheet[i][0].value:
+            day = int(sheet[i][0].value.split(" ")[0])
+            i += 1
+            while i < sheet.max_row + 1:
+                if "КТЦ" in sheet[i][0].value:
+                    i += 1
+                    while i < sheet.max_row + 1:
+                        if proverka(sheet[i][0].value):
+                            break
+                        st = (sheet[i][0].value).split(" – ")
+                        h = int((st[0].split('.'))[0])
+                        m = int((st[0].split('.'))[1])
+                        h2 = int((st[1].split('.'))[0])
+                        m2 = int((st[1].split('.'))[1])
+                        adm = Programma(
+                            name=sheet[i][1].value,
+                            comment="",
+                            date_start=datetime.datetime(2023, 6, day, h, m),
+                            date_finish=datetime.datetime(2023, 6, day, h2, m2),
+                            place="КТЦ"
+                        )
+                        db_sess.add(adm)
+                        db_sess.commit()
+                        i += 1
+                if "КВЦ" in sheet[i][0].value:
+                    i += 1
+                    while i < sheet.max_row + 1:
+                        if proverka(sheet[i][0].value):
+                            break
+                        st = (sheet[i][0].value).split(" – ")
+                        h = int((st[0].split('.'))[0])
+                        m = int((st[0].split('.'))[1])
+                        h2 = int((st[1].split('.'))[0])
+                        m2 = int((st[1].split('.'))[1])
+                        adm = Programma(
+                            name=sheet[i][1].value,
+                            comment="",
+                            date_start=datetime.datetime(2023, 6, day, h, m),
+                            date_finish=datetime.datetime(2023, 6, day, h2, m2),
+                            place="КВЦ"
+                        )
+                        db_sess.add(adm)
+                        db_sess.commit()
+                        i += 1
+                if "Рестораны" in sheet[i][0].value:
+                    i += 1
+                    while i < sheet.max_row + 1:
+                        if proverka(sheet[i][0].value):
+                            break
+                        st = (sheet[i][0].value).split(" – ")
+                        h = int((st[0].split('.'))[0])
+                        m = int((st[0].split('.'))[1])
+                        adm = InterParty(
+                            date_start=datetime.datetime(2023, 6, day, h, m),
+                            comment="",
+                            man_now=0,
+                            man_max=int(sheet[i][4].value)
+                        )
+                        db_sess.add(adm)
+                        db_sess.commit()
+                        i += 1
 
 
 def admin(bot: telebot.TeleBot, message):
     bot.send_message(message.chat.id, default_messages_admin.HELLO_MESSAGE,
                      reply_markup=keyboards_admin.func_data())
 
-    @bot.callback_query_handler(func=lambda call: call.data == 'add')  # добавить
-    def add_callback(call):
-        """Добавяляем"""
-        bot.send_message(message.chat.id, default_messages_admin.FUNC_MESSAGE,
-                         reply_markup=keyboards_admin.data_add())
+    @bot.callback_query_handler(func=lambda call: call.data == "add")
+    def excel(call):
+        bot.send_message(call.message.chat.id, 'Отправьте excel файл!')
 
-        @bot.callback_query_handler(func=lambda call: call.data == 'program')  # мероприятие
-        def add_party_callback(call):
-            """Добавляем мероприятие"""
-
-            bot.send_message(message.chat.id,
-                             "Отправь excel файл по шаблону:\n""(<назание><о мероприятии><начало><конец><место><спикеры><модераторы><темы>)")
-
-            @bot.message_handler(content_types=['document'])
-            def handle_file(message):
-                from tools_admin.add_party import add_party
-                add_party(bot, message)
-                bot.send_message(message.chat.id, "Вся программа из excel добавлена!")
-
-        @bot.callback_query_handler(func=lambda call: call.data == 'program_reg')  # мероприятие
-        def add_party_callback(call):
-            """Добавляем мероприятия с регистрацией"""
-
-            bot.send_message(message.chat.id,
-                             "Отправь excel файл по шаблону:\n""(<начало><содержание><максимальное количество человек>)")
-
-            @bot.message_handler(content_types=['document'])
-            def handle_file(message):
-                from tools_admin.add_party_reg import add_party_reg
-                add_party_reg(bot, message)
-                bot.send_message(message.chat.id, "Вся программа из excel добавлена!")
-
-        @bot.callback_query_handler(func=lambda call: call.data == 'admin')  # админ
-        def add_admin_callback(call):
-            """Добавляем админа"""
-            bot.send_message(message.chat.id, default_messages_admin.WORK_WAY,
-                             reply_markup=keyboards_admin.ways())
-
-            @bot.callback_query_handler(func=lambda call: call.data == 'excel')  # excel
-            def add_admin_excel_callback(call):
-                bot.send_message(message.chat.id, "Отправь excel файл(одна колонка с <chat_id>)")
-
-                @bot.message_handler(content_types=['document'])
-                def handle_file(message):
-                    from tools_admin.add_admin_excel import add_admin_excel
-                    add_admin_excel(bot, message)
-                    bot.send_message(message.chat.id, "Все админы из excel добавлены!")
-
-            @bot.callback_query_handler(func=lambda call: call.data == 'work')  # вручную
-            def add_admin_work_callback(call):
-                bot.send_message(message.chat.id, "Введите данные админа по шаблону\n<chat.id>")
-
-                @bot.message_handler()
-                def handle_message(message):
-                    from tools_admin.add_admin_work import add_admin_work
-                    add_admin_work(message)
-                    bot.send_message(message.chat.id, "Админ добавлен!")
-
-        """Добавляем организатора"""
-
-        @bot.callback_query_handler(func=lambda call: call.data == 'org')  # org
-        def add_org_callback(call):
-            bot.send_message(message.chat.id, default_messages_admin.WORK_WAY,
-                             reply_markup=keyboards_admin.ways())
-
-            @bot.callback_query_handler(func=lambda call: call.data == 'excel')  # excel
-            def add_org_excel_callback(call):
-                bot.send_message(message.chat.id, "Отправь excel файл(одна колонка с <chat_id>)")
-
-                @bot.message_handler(content_types=['document'])
-                def handle_file(message):
-                    from tools_admin.add_org_excel import add_org_excel
-                    add_org_excel(bot, message)
-                    bot.send_message(message.chat.id, "Все организаторы из excel добавлены!")
-
-            @bot.callback_query_handler(func=lambda call: call.data == 'work')  # вручную
-            def add_org_work_callback(call):
-                bot.send_message(message.chat.id, "Введите данные организатора по шаблону\n<chat.id>")
-
-                @bot.message_handler()
-                def handle_message(message):
-                    from tools_admin.add_org_work import add_org_work
-                    add_org_work(message)
-                    bot.send_message(message.chat.id, "Организатор добавлен!")
-
-        """Добавляем вопрос"""
-
-        @bot.callback_query_handler(func=lambda call: call.data == 'quest')  # quest
-        def add_quest_callback(call):
-            bot.send_message(message.chat.id, "Введите вопрос по шаблону\n<Вопрос>#<Ответ>")
-
-            @bot.message_handler()
-            def handle_message(message):
-                from tools_admin.add_quest import add_quest
-                add_quest(message)
-                bot.send_message(message.chat.id, "Вопрос добавлен!")
-
-    @bot.callback_query_handler(func=lambda call: call.data == 'delete')  # удалить
-    def delete_callback(call):
-        """Удаляем"""
-        bot.send_message(message.chat.id, default_messages_admin.FUNC_MESSAGE,
-                         reply_markup=keyboards_admin.data_delete())
-
-        @bot.callback_query_handler(func=lambda call: call.data == 'admin')  # admin
-        def delete_admin_callback(call):
-            """Удаляем Админа"""
-            bot.send_message(message.chat.id, "Введите данные админа по шаблону\n<chat.id>")
-
-            @bot.message_handler()
-            def menu(message):
-                from tools_admin.delete_admin import delete_admin
-                delete_admin(message)
-                bot.send_message(message.chat.id, "Админ удален!")
-
-        @bot.callback_query_handler(func=lambda call: call.data == 'org')  # org
-        def callback_about(call):
-            """Удаляем организатора"""
-            bot.send_message(message.chat.id, "Введите данные организатора по шаблону\n<chat.id>")
-
-            @bot.message_handler()
-            def menu(message):
-                from tools_admin.delete_org import delete_org
-                delete_org(message)
-                bot.send_message(message.chat.id, "Организатор удален!")
-
-        """Удаляем вопрос"""
-
-        @bot.callback_query_handler(func=lambda call: call.data == 'quest')  # quest
-        def callback_about(call):
-            bot.send_message(message.chat.id, "Введите вопрос по шаблону\n<Вопрос>#<Ответ>")
-
-            @bot.message_handler()
-            def menu(message):
-                from tools_admin.delete_quest import delete_quest
-                delete_quest(message)
-                bot.send_message(message.chat.id, "Вопрос добавлен!")
+        @bot.message_handler(content_types=['document'])
+        def handle_file(message):
+            test(bot, message)
+            bot.send_message(message.chat.id, "Все данные обновлены!!!")
