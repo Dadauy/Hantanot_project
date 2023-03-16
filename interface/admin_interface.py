@@ -25,6 +25,9 @@ def test(bot, message):
     sheet = book.active
     db_session.global_init("db/db_forum.db")
     db_sess = db_session.create_session()
+    db_sess.query(Programma).delete()
+    db_sess.query(InterParty).delete()
+    db_sess.commit()
     i = 1
     while i < sheet.max_row + 1:
         if "июня" in sheet[i][0].value:
@@ -51,7 +54,7 @@ def test(bot, message):
                         db_sess.add(adm)
                         db_sess.commit()
                         i += 1
-                if "КВЦ" in sheet[i][0].value:
+                elif "КВЦ" in sheet[i][0].value:
                     i += 1
                     while i < sheet.max_row + 1:
                         if proverka(sheet[i][0].value):
@@ -71,7 +74,7 @@ def test(bot, message):
                         db_sess.add(adm)
                         db_sess.commit()
                         i += 1
-                if "Рестораны" in sheet[i][0].value:
+                elif "Рестораны" in sheet[i][0].value:
                     i += 1
                     while i < sheet.max_row + 1:
                         if proverka(sheet[i][0].value):
@@ -88,6 +91,10 @@ def test(bot, message):
                         db_sess.add(adm)
                         db_sess.commit()
                         i += 1
+                else:
+                    break
+        else:
+            break
 
 
 def admin(bot: telebot.TeleBot, message):
