@@ -46,10 +46,10 @@ def test(bot, message):
                         m2 = int((st[1].split('.'))[1])
                         adm = Programma(
                             name=sheet[i][1].value,
-                            comment="",
+                            comment=sheet[i][2].value,
                             date_start=datetime.datetime(2023, 6, day, h, m),
                             date_finish=datetime.datetime(2023, 6, day, h2, m2),
-                            place="КТЦ"
+                            place="КТЦ Югра-Классик"
                         )
                         db_sess.add(adm)
                         db_sess.commit()
@@ -66,10 +66,10 @@ def test(bot, message):
                         m2 = int((st[1].split('.'))[1])
                         adm = Programma(
                             name=sheet[i][1].value,
-                            comment="",
+                            comment=sheet[i][2].value,
                             date_start=datetime.datetime(2023, 6, day, h, m),
                             date_finish=datetime.datetime(2023, 6, day, h2, m2),
-                            place="КВЦ"
+                            place="КВЦ Югра-Экспо"
                         )
                         db_sess.add(adm)
                         db_sess.commit()
@@ -84,7 +84,7 @@ def test(bot, message):
                         m = int((st[0].split('.'))[1])
                         adm = InterParty(
                             date_start=datetime.datetime(2023, 6, day, h, m),
-                            comment="",
+                            comment=sheet[i][1].value,
                             man_now=0,
                             man_max=int(sheet[i][4].value)
                         )
