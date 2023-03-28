@@ -11,3 +11,4 @@ from . import inter_party
 from . import inter_party_reg
 from . import menu_points
 from . import menu_for_guests
+from . import programma_organizators
