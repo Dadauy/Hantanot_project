@@ -1,23 +1,24 @@
 import telebot
-from messages import default_messages_user, keyboards_user
 from sqlalchemy.orm import Session
-from database.programma import Programma
-
+from database.programma_organizators import Programma_Org
+from messages import default_messages_moder
 
 
 def moder(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session):
+    bot.send_message(message.chat.id, "Привет", reply_markup=default_messages_moder.func_data())
+
     # Выбрать день
     @bot.callback_query_handler(func=lambda call: call.data == "program")
     def select_day(call):
         bot.send_message(call.message.chat.id,
                          'Программа будет проходить в течении несокльких дней\nНа какой день вы бы хотели узнать программу:',
-                         reply_markup=keyboards_user.get_daykb(db_sess.query(Programma).all()))
+                         reply_markup=default_messages_moder.get_daykb(db_sess.query(Programma_Org).all()))
 
     # Выбрать место
     @bot.callback_query_handler(func=lambda call: call.data.startswith("day_num"))
     def select_place(call):
         day_num = int(call.data.replace("day_num", ""))
-        ivents: list[Programma] = db_sess.query(Programma).all()
+        ivents: list[Programma_Org] = db_sess.query(Programma_Org).all()
         ucls = False
         expo = False
         for ivent in ivents:
@@ -28,20 +29,20 @@ def moder(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session
                     expo = True
         if ucls and expo:
             bot.send_message(call.message.chat.id, "Выберите место проведения:",
-                             reply_markup=keyboards_user.get_places_kb(1, day_num))
+                             reply_markup=default_messages_moder.get_places_kb(1, day_num))
         elif ucls:
             bot.send_message(call.message.chat.id, "Выберите место проведения:",
-                             reply_markup=keyboards_user.get_places_kb(2, day_num))
+                             reply_markup=default_messages_moder.get_places_kb(2, day_num))
         elif expo:
             bot.send_message(call.message.chat.id, "Выберите место проведения:",
-                             reply_markup=keyboards_user.get_places_kb(3, day_num))
+                             reply_markup=default_messages_moder.get_places_kb(3, day_num))
 
     # Выбрать зал
     @bot.callback_query_handler(func=lambda call: call.data.startswith("prog"))
     def select_room(call):
         type = int(call.data.replace("prog", "").split("*")[1])
         day = int(call.data.replace("prog", "").split("*")[0])
-        ivents: list[Programma] = db_sess.query(Programma).all()
+        ivents: list[Programma_Org] = db_sess.query(Programma_Org).all()
 
         place = ""
         if type == 1:
@@ -49,7 +50,7 @@ def moder(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session
         elif type == 2:
             place = "КВЦ"
         bot.send_message(call.message.chat.id, "Выберите зал:",
-                         reply_markup=keyboards_user.get_room_kb(place, day, ivents))
+                         reply_markup=default_messages_moder.get_room_kb(place, day, ivents))
 
     # Отфильтрованная программа
     @bot.callback_query_handler(func=lambda call: call.data.startswith("allinfo"))
@@ -59,11 +60,11 @@ def moder(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session
         room = call.data.replace("allinfo", "").split("*")[2]
 
         bot.send_message(call.message.chat.id, "Расписание мероприятий:")
-        ivents: list[Programma] = db_sess.query(Programma).all()
+        ivents: list[Programma_Org] = db_sess.query(Programma_Org).all()
         for ivent in ivents:
             if ivent.date_start.day == day and ivent.place.startswith(place) and ivent.place_2 == room:
-                des = default_messages_user.get_ivent_description(ivent)
+                des = default_messages_moder.get_ivent_description(ivent)
                 bot.send_message(call.message.chat.id, des, parse_mode="HTML")
 
         bot.send_message(call.message.chat.id, "Вот все мероприятия в выбранной вами локации!",
-                         reply_markup=keyboards_user.get_go_to_main_menukb())
+                         reply_markup=default_messages_moder.get_go_to_main_menukb())

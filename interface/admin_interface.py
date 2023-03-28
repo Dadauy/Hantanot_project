@@ -2,7 +2,6 @@ import telebot
 from messages import default_messages_admin, keyboards_admin
 import os
 import openpyxl
-from database import db_session
 from database.programma import Programma
 from database.inter_party import InterParty
 from database.programma_organizators import Programma_Org
@@ -18,7 +17,7 @@ def proverka(msg):
     return False
 
 
-def test(bot, message):
+def test(bot, message, db_sess):
     file_info = bot.get_file(message.document.file_id)
     downloaded_file = bot.download_file(file_info.file_path)
     src = os.path.abspath(message.document.file_name)
@@ -26,10 +25,8 @@ def test(bot, message):
         new_file.write(downloaded_file)
     book = openpyxl.open(src)
     sheet = book.active
-    db_session.global_init("db/db_forum.db")
-    db_sess = db_session.create_session()
-    db_sess.query(Programma).delete()
-    db_sess.query(InterParty).delete()
+    # db_sess.query(Programma).delete()
+    # db_sess.query(InterParty).delete()
     db_sess.commit()
     i = 2
     while i < sheet.max_row + 1:
@@ -37,7 +34,6 @@ def test(bot, message):
             day = int(sheet[i][0].value.split(" ")[0])
             i += 1
             while i < sheet.max_row + 1:
-                print(sheet[i][0].value)
                 if "КТЦ Югра-Классик" in sheet[i][0].value:
                     i += 1
                     place_2 = ""
@@ -114,7 +110,7 @@ def test(bot, message):
                         else:
                             place_2 = sheet[i][0].value
                             i += 1
-                elif "Экскурсия" in sheet[i][0].value:
+                elif "Рестораны" in sheet[i][0].value:
                     i += 1
                     place_2 = ""
                     while i < sheet.max_row + 1:
@@ -147,7 +143,7 @@ def test(bot, message):
             break
 
 
-def test2(bot, message):
+def test2(bot, message, db_sess):
     file_info = bot.get_file(message.document.file_id)
     downloaded_file = bot.download_file(file_info.file_path)
     src = os.path.abspath(message.document.file_name)
@@ -155,12 +151,9 @@ def test2(bot, message):
         new_file.write(downloaded_file)
     book = openpyxl.open(src)
     sheet = book.active
-    db_session.global_init("db/db_forum.db")
-    db_sess = db_session.create_session()
-    db_sess.query(Programma_Org).delete()
+    # db_sess.query(Programma_Org).delete()
     db_sess.commit()
     i = 1
-    print(sheet.max_row)
     while i < sheet.max_row + 1:
         if "июня" in sheet[i][0].value:
             day = int(sheet[i][0].value.split(" ")[0])
@@ -280,7 +273,6 @@ def test2(bot, message):
                             db_sess.commit()
                             i = n
                         else:
-                            print(i)
                             place_2 = sheet[i][0].value
                             i += 1
                 else:
@@ -289,7 +281,7 @@ def test2(bot, message):
             break
 
 
-def admin(bot: telebot.TeleBot, message):
+def admin(bot: telebot.TeleBot, message, db_sess):
     bot.send_message(message.chat.id, default_messages_admin.HELLO_MESSAGE,
                      reply_markup=keyboards_admin.func_data())
 
@@ -297,16 +289,16 @@ def admin(bot: telebot.TeleBot, message):
     def excel(call):
         bot.send_message(call.message.chat.id, 'Отправьте excel файл!')
 
-        @bot.message_handler(content_types=['document'])
-        def handle_file(message):
-            test(bot, message)
-            bot.send_message(message.chat.id, "Все данные обновлены!!!")
+    @bot.message_handler(content_types=['document'])
+    def handle_file(message):
+        test(bot, message, db_sess)
+        bot.send_message(message.chat.id, "Все данные обновлены!!!")
 
     @bot.callback_query_handler(func=lambda call: call.data == "add2")
     def excel(call):
         bot.send_message(call.message.chat.id, 'Отправьте excel файл!')
 
-        @bot.message_handler(content_types=['document'])
-        def handle_file(message):
-            test2(bot, message)
-            bot.send_message(message.chat.id, "Все данные обновлены!!!")
+    @bot.message_handler(content_types=['document'])
+    def handle_file(message):
+        test2(bot, message, db_sess)
+        bot.send_message(message.chat.id, "Все данные обновлены!!!")

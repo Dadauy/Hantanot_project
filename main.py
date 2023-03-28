@@ -25,9 +25,9 @@ def start_hello(message):
         db_sess.commit()
         user_interface.user(bot, message, db_sess)
     elif res.law == 1:  # если админ
-        admin_interface.admin(bot, message)
+        admin_interface.admin(bot, message, db_sess)
     elif res.law == 2:
-        moder_interface.moder(bot, message)
+        moder_interface.moder(bot, message, db_sess)
     elif res.law == 0:
         user_interface.user(bot, message, db_sess)
 
