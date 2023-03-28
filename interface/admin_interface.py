@@ -17,7 +17,7 @@ def proverka(msg):
     return False
 
 
-def test(bot, message, db_sess):
+def test(message, bot, db_sess):
     file_info = bot.get_file(message.document.file_id)
     downloaded_file = bot.download_file(file_info.file_path)
     src = os.path.abspath(message.document.file_name)
@@ -25,8 +25,8 @@ def test(bot, message, db_sess):
         new_file.write(downloaded_file)
     book = openpyxl.open(src)
     sheet = book.active
-    # db_sess.query(Programma).delete()
-    # db_sess.query(InterParty).delete()
+    db_sess.query(Programma).delete()
+    db_sess.query(InterParty).delete()
     db_sess.commit()
     i = 2
     while i < sheet.max_row + 1:
@@ -79,7 +79,7 @@ def test(bot, message, db_sess):
                         flag_date = False
                         for j in "1234567890":
                             if sheet[i][0].value == None:
-                                continue #ЭТО УСЛОВИЕ ДОВАИЛ КОСТЯ!!!
+                                continue  # ЭТО УСЛОВИЕ ДОВАИЛ КОСТЯ!!!
                             if j in sheet[i][0].value:
                                 flag_date = True
                         if flag_date:
@@ -87,7 +87,7 @@ def test(bot, message, db_sess):
                             n = i
                             n += 1
                             while sheet[n][0].value is None and n < sheet.max_row + 1:
-                                if sheet[n][2].value != None: #ЭТО ДОБАВИЛ КОСТЯ!!!!
+                                if sheet[n][2].value != None:  # ЭТО ДОБАВИЛ КОСТЯ!!!!
                                     moder += "#" + sheet[n][2].value
                                 n += 1
                             st = (sheet[i][0].value).split(" – ")
@@ -143,7 +143,7 @@ def test(bot, message, db_sess):
             break
 
 
-def test2(bot, message, db_sess):
+def test2(message, bot, db_sess):
     file_info = bot.get_file(message.document.file_id)
     downloaded_file = bot.download_file(file_info.file_path)
     src = os.path.abspath(message.document.file_name)
@@ -151,7 +151,7 @@ def test2(bot, message, db_sess):
         new_file.write(downloaded_file)
     book = openpyxl.open(src)
     sheet = book.active
-    # db_sess.query(Programma_Org).delete()
+    db_sess.query(Programma_Org).delete()
     db_sess.commit()
     i = 1
     while i < sheet.max_row + 1:
@@ -287,18 +287,10 @@ def admin(bot: telebot.TeleBot, message, db_sess):
 
     @bot.callback_query_handler(func=lambda call: call.data == "add")
     def excel(call):
-        bot.send_message(call.message.chat.id, 'Отправьте excel файл!')
-
-    @bot.message_handler(content_types=['document'])
-    def handle_file(message):
-        test(bot, message, db_sess)
-        bot.send_message(message.chat.id, "Все данные обновлены!!!")
+        msg = bot.send_message(message.chat.id, 'Отправьте excel для пользователя')
+        bot.register_next_step_handler(msg, test, bot, db_sess)
 
     @bot.callback_query_handler(func=lambda call: call.data == "add2")
-    def excel(call):
-        bot.send_message(call.message.chat.id, 'Отправьте excel файл!')
-
-    @bot.message_handler(content_types=['document'])
-    def handle_file(message):
-        test2(bot, message, db_sess)
-        bot.send_message(message.chat.id, "Все данные обновлены!!!")
+    def excel2(call):
+        msg = bot.send_message(message.chat.id, 'Отправьте excel для организатора')
+        bot.register_next_step_handler(msg, test2, bot, db_sess)
