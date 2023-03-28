@@ -2,7 +2,6 @@ import telebot
 from telebot import types
 from messages import default_messages_user, keyboards_user
 from sqlalchemy.orm import Session
-from database import db_session
 from database.programma import Programma
 from database.inter_party import InterParty
 from database.inter_party_reg import InterPartyReg

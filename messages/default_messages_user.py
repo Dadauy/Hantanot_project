@@ -57,10 +57,12 @@ def get_ivent_description(ivent: Programma):
                                                                         str(ivent.date_start.minute).rjust(2, "0"),
                                                                         str(ivent.date_finish.hour).rjust(2, "0"),
                                                                         str(ivent.date_finish.minute).rjust(2, "0"))
-    des += "\n<strong>Выступающие: </strong> \n"
-    for moder in ivent.moder.split("#"):
-        des += "    " + moder + "\n"
-    des += "\n<strong>Тема которая будет обсуждаться: </strong> \n" + ivent.quest
+    if ivent.moder != None:
+        des += "\n<strong>Выступающие: </strong> \n"
+        for moder in ivent.moder.split("#"):
+            des += "    " + moder + "\n"
+    if ivent.quest != None:
+        des += "\n<strong>Тема которая будет обсуждаться: </strong> \n" + ivent.quest
     return des
 
 

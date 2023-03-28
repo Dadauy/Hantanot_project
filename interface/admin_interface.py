@@ -82,6 +82,8 @@ def test(bot, message):
                             break
                         flag_date = False
                         for j in "1234567890":
+                            if sheet[i][0].value == None:
+                                continue #ЭТО УСЛОВИЕ ДОВАИЛ КОСТЯ!!!
                             if j in sheet[i][0].value:
                                 flag_date = True
                         if flag_date:
@@ -89,7 +91,8 @@ def test(bot, message):
                             n = i
                             n += 1
                             while sheet[n][0].value is None and n < sheet.max_row + 1:
-                                moder += "#" + sheet[n][2].value
+                                if sheet[n][2].value != None: #ЭТО ДОБАВИЛ КОСТЯ!!!!
+                                    moder += "#" + sheet[n][2].value
                                 n += 1
                             st = (sheet[i][0].value).split(" – ")
                             h = int((st[0].split('.'))[0])
