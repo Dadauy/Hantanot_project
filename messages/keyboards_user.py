@@ -154,3 +154,15 @@ def get_places_kb(type: int, day: int):
                                           callback_data="prog" + str(day) + "*" + str(2)))
         kb.add(types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='main_menu'))
         return kb
+
+
+def get_room_kb(place: str, day: int, ivents: list[Programma]):
+    kb = types.InlineKeyboardMarkup()
+    rooms = set()
+    for ivent in ivents:
+        if ivent.place.startswith(place) and ivent.date_start.day == day:
+            rooms.add(ivent.place_2)
+    for room in rooms:
+        btn = types.InlineKeyboardButton(text=room, callback_data='allinfo' + place + '*' + str(day) + "*" + room)
+        kb.add(btn)
+    return kb

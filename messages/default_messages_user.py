@@ -1,6 +1,7 @@
 import surrogates
 from database.menu_points import MenuPoint
 from database.inter_party import InterParty
+from database.programma import Programma
 from messages import keyboards_user
 
 mon = ['января', 'февраля', 'марта', "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября",
@@ -50,15 +51,16 @@ def get_decription(party):
     return des
 
 
-def get_ivent_description(ivent):
+def get_ivent_description(ivent: Programma):
     des = "<strong>" + ivent.name + "</strong>\n"
     des += "\n<strong>Время проведения:</strong>\n{}:{} - {}:{}".format(str(ivent.date_start.hour).rjust(2, "0"),
                                                                         str(ivent.date_start.minute).rjust(2, "0"),
                                                                         str(ivent.date_finish.hour).rjust(2, "0"),
                                                                         str(ivent.date_finish.minute).rjust(2, "0"))
-    des += "\n<strong>Место проведения:</strong> \n" + ivent.place
-    if ivent.comment != None:
-        des += "\n<strong>Немного о мероприятии:</strong>\n" + ivent.comment
+    des += "\n<strong>Выступающие: </strong> \n"
+    for moder in ivent.moder.split("#"):
+        des += "    " + moder + "\n"
+    des += "\n<strong>Тема которая будет обсуждаться: </strong> \n" + ivent.quest
     return des
 
 
