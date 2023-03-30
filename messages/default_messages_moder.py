@@ -49,7 +49,7 @@ def get_welcomekb():
 def get_go_to_main_menukb():
     kb = types.InlineKeyboardMarkup()
 
-    btn = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='Mprogram')
+    btn = types.InlineKeyboardButton(text='Перейти к выбору дня', callback_data='Mprogram')
 
     kb.add(btn)
     return kb

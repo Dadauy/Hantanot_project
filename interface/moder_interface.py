@@ -5,13 +5,13 @@ from messages import default_messages_moder
 
 
 def moder(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session):
-    bot.send_message(message.chat.id, "Привет", reply_markup=default_messages_moder.func_data())
+    bot.send_message(message.chat.id, "Приветствую Вас в интерфейсе организатора!\nЗдесь вы можете посмотреть кто ответственен за выбранное мероприятие", reply_markup=default_messages_moder.func_data())
 
     # Выбрать день
     @bot.callback_query_handler(func=lambda call: call.data == "Mprogram")
     def select_day(call):
         bot.send_message(call.message.chat.id,
-                         'Программа будет проходить в течении несокльких дней\nНа какой день вы бы хотели узнать программу:',
+                         'Программа будет проходить в течение несокльких дней\nНа какой день вы бы хотели узнать программу:',
                          reply_markup=default_messages_moder.get_daykb(db_sess.query(Programma_Org).all()))
 
     # Выбрать место
