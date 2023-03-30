@@ -287,10 +287,10 @@ def admin(bot: telebot.TeleBot, message, db_sess):
 
     @bot.callback_query_handler(func=lambda call: call.data == "add")
     def excel(call):
-        msg = bot.send_message(message.chat.id, 'Отправьте excel для пользователя')
+        msg = bot.send_message(call.message.chat.id, 'Отправьте excel для пользователя')
         bot.register_next_step_handler(msg, test, bot, db_sess)
 
     @bot.callback_query_handler(func=lambda call: call.data == "add2")
     def excel2(call):
-        msg = bot.send_message(message.chat.id, 'Отправьте excel для организатора')
+        msg = bot.send_message(call.message.chat.id, 'Отправьте excel для организатора')
         bot.register_next_step_handler(msg, test2, bot, db_sess)

@@ -80,7 +80,7 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
     @bot.callback_query_handler(func=lambda call: call.data == "program")
     def select_day(call):
         bot.send_message(call.message.chat.id,
-                         'Программа будет проходить в течении несокльких дней\nНа какой день вы бы хотели узнать программу:',
+                         'Программа будет проходить в течение несокльких дней\nНа какой день вы бы хотели узнать программу:',
                          reply_markup=keyboards_user.get_daykb(db_sess.query(Programma).all()))
 
     # Задать вопрос
@@ -195,8 +195,8 @@ def user(bot: telebot.TeleBot, message: telebot.types.Message, db_sess: Session)
             btn = telebot.types.InlineKeyboardButton(text="Зарегистрироваться", callback_data=cdata)
             kb.add(btn)
             bot.send_message(call.message.chat.id, data, reply_markup=kb, parse_mode="HTML")
-            bot.send_message(call.message.chat.id, "Это всесь список экскурсий!",
-                             reply_markup=keyboards_user.get_go_to_main_menukb())
+        bot.send_message(call.message.chat.id, "Это всесь список экскурсий!",
+                         reply_markup=keyboards_user.get_go_to_main_menukb())
 
     # Обработчик запросов на регистрацию
     @bot.callback_query_handler(func=lambda call: call.data.startswith('ivent_for_reg'))

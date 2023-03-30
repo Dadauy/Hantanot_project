@@ -1,0 +1,8 @@
+/venv/
+/.idea/
+/.handler-saves/step.save
+/.handler-saves/step.save.tmp
+/messages/menu_func.py
+/settings/OLD.py
+/settings/config.py
+/.gitignore

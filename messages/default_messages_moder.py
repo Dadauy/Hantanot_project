@@ -13,7 +13,7 @@ def get_ivent_description(ivent: Programma):
                                                                         str(ivent.date_finish.minute).rjust(2, "0"))
     moders = []
     numbers = []
-    des += "\n<strong>Выступающие: </strong> \n"
+    des += "\n<strong>Ответственные: </strong> \n"
     if ivent.moder != None:
         for moder in ivent.moder.split("#"):
             moders.append(moder)
@@ -21,13 +21,13 @@ def get_ivent_description(ivent: Programma):
         for number in ivent.numbers.split("#"):
             numbers.append(number)
     for i in range(len(moders)):
-        des += f"{moders[i]}: {numbers[i]}\n"
+        des += f"{moders[i]}:  +{numbers[i]}\n"
     return des
 
 
 def func_data():
     kb = types.InlineKeyboardMarkup()
-    kb.add(types.InlineKeyboardButton(text='выбрать день', callback_data='program'))
+    kb.add(types.InlineKeyboardButton(text='Выбрать день', callback_data='Mprogram'))
     return kb
 
 
@@ -49,7 +49,7 @@ def get_welcomekb():
 def get_go_to_main_menukb():
     kb = types.InlineKeyboardMarkup()
 
-    btn = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='program')
+    btn = types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='Mprogram')
 
     kb.add(btn)
     return kb
@@ -97,10 +97,10 @@ def get_daykb(programma: list[Programma]):
 
     for day in dayl:
         text = str(day) + " " + monthst
-        data = "day_num" + str(day)
+        data = "Mday_num" + str(day)
         btn = types.InlineKeyboardButton(text=text, callback_data=data)
         kb.add(btn)
-    kb.add(types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='program'))
+    kb.add(types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='Mprogram'))
     return kb
 
 
@@ -166,20 +166,20 @@ def get_places_kb(type: int, day: int):
     kb = types.InlineKeyboardMarkup()
     if type == 1:
         kb.add(types.InlineKeyboardButton(text="КТЦ «Югра-Классик» (ул.Мира, 22)",
-                                          callback_data="prog" + str(day) + "*" + str(1)))
+                                          callback_data="Mprog" + str(day) + "*" + str(1)))
         kb.add(types.InlineKeyboardButton(text="КВЦ «Югра-Экспо» (ул. Студенческая, 19)",
-                                          callback_data="prog" + str(day) + "*" + str(2)))
-        kb.add(types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='program'))
+                                          callback_data="Mprog" + str(day) + "*" + str(2)))
+        kb.add(types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='Mprogram'))
         return kb
     elif type == 2:
         kb.add(types.InlineKeyboardButton(text="КТЦ «Югра-Классик» (ул.Мира, 22)",
-                                          callback_data="prog" + str(day) + "*" + str(1)))
-        kb.add(types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='program'))
+                                          callback_data="Mprog" + str(day) + "*" + str(1)))
+        kb.add(types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='Mprogram'))
         return kb
     elif type == 3:
         kb.add(types.InlineKeyboardButton(text="КВЦ «Югра-Экспо» (ул. Студенческая, 19)",
-                                          callback_data="prog" + str(day) + "*" + str(2)))
-        kb.add(types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='program'))
+                                          callback_data="Mprog" + str(day) + "*" + str(2)))
+        kb.add(types.InlineKeyboardButton(text='Перейти в основное меню', callback_data='Mprogram'))
         return kb
 
 
@@ -190,6 +190,6 @@ def get_room_kb(place: str, day: int, ivents: list[Programma]):
         if ivent.place.startswith(place) and ivent.date_start.day == day:
             rooms.add(ivent.place_2)
     for room in rooms:
-        btn = types.InlineKeyboardButton(text=room, callback_data='allinfo' + place + '*' + str(day) + "*" + room)
+        btn = types.InlineKeyboardButton(text=room, callback_data='Mallinfo' + place + '*' + str(day) + "*" + room)
         kb.add(btn)
     return kb
